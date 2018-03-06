@@ -5,8 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 app.use(responseTime());
 app.use(bodyParser.json());

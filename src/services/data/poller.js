@@ -33,11 +33,7 @@ async function pollLuftDaten() {
   job.lastKey = outA.lastKey;
   job.lastSync = moment.now();
   job.duration = job.lastSync - start;
-  try {
-    await store.updateCronJob(job);
-  } catch (e) {
-    console.log(e);
-  }
+  await store.updateCronJob(job);
 
   // Push data
   let options = { concurrency: 4 };
