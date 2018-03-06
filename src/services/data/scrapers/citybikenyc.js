@@ -1,6 +1,6 @@
 const rp = require('request-promise');
 
-function getStationStatusFeed(endpoint, out) {
+async function getStationStatusFeed(endpoint, out) {
   await rp(endpoint)
     .then(response => {
       let json = JSON.parse(response);
@@ -28,4 +28,4 @@ function getStationStatusFeed(endpoint, out) {
 
 module.exports = {
   getStationStatusFeed
-}
+};

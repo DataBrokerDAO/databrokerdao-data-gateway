@@ -2,12 +2,14 @@ const store = require('./services/mongo/store');
 const scheduler = require('./services/cron/scheduler');
 const responseTime = require('response-time');
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 
 const dotenv = require('dotenv');
 dotenv.config();
 
 app.use(responseTime());
+app.use(bodyParser.json());
 
 app.get('/debug', async (req, res, next) => {
   let jobs = await store.getCronJobs();
@@ -20,12 +22,10 @@ app.get('/debug', async (req, res, next) => {
   // res.send('Running');
 });
 
-app.post('/data', (req, res, next) => {
-  req.pipe(process.stdout);
-  req.on('end', function() {
-    console.log('\r\nfinished');
-    res.end();
-  });
+app.post('/:address/data', (req, res, next) => {
+  console.log(`Received data at address ${req.params.address}`);
+  console.log(req.body);
+  res.send();
 });
 
 // TODO remove - debugging purposes

@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const rp = require('request-promise');
-const html = require('../util/html');
+const html = require('../../util/html');
 
 async function scanForArchives(endpoint, out) {
   let archivesToSync = [];
@@ -39,7 +39,7 @@ async function scanForArchives(endpoint, out) {
 
 async function scanArchivesForCsvs(archives, out) {
   let csvBuckets = await Promise.map(
-    archivesToSync,
+    archives,
     archive => {
       return new Promise((resolve, reject) => {
         rp(archive).then(response => {
@@ -79,11 +79,11 @@ async function scanArchivesForCsvs(archives, out) {
   );
 
   // Flatten the list of csv url buckets
-  let csvUrls = [].concat.apply([], csvUrlBuckets);
+  let csvUrls = [].concat.apply([], csvBuckets);
   return csvUrls;
 }
 
 module.exports = {
   scanForArchives,
   scanArchivesForCsvs
-}
+};

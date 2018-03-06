@@ -4,14 +4,14 @@ const auth = require('./auth');
 
 const dotenv = require('dotenv');
 dotenv.config();
-const baseUrl = process.env.DATABROKER_DAPI_BASE_URL;
+const dapiBaseUrl = process.env.DATABROKER_DAPI_BASE_URL;
 
 async function isEnlisted(metadata) {
   let authToken = auth.authenticate();
 
   let options = {
     method: 'GET',
-    uri: rtrim(baseUrl) + '/streamregistry/list',
+    uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/list',
     headers: {
       Authorization: authToken
     }
@@ -21,7 +21,10 @@ async function isEnlisted(metadata) {
 
   let address;
   list.items.forEach(item => {
-    if (!typeof address === 'undefined' && item.metadata.name === metadata.name) {
+    if (
+      !typeof address === 'undefined' &&
+      item.metadata.name === metadata.name
+    ) {
       address = item.contractAddress;
     }
   });
@@ -34,7 +37,7 @@ async function enlist(metadata) {
 
   let options = {
     method: 'POST',
-    uri: rtrim(baseUrl) + '/streamregistry/enlist',
+    uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
     body: {
       price: 10,
       stakeamount: 10
@@ -48,7 +51,7 @@ async function enlist(metadata) {
   let address = await rp(options).then(async address => {
     let options = {
       method: 'POST',
-      uri: rtrim(baseUrl) + '/streamregistry/updatestreammetadata',
+      uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/updatestreammetadata',
       body: {
         listing: address,
         ipfshash: await ipfs(metadata)
@@ -72,7 +75,7 @@ async function ipfs(json) {
 
   let options = {
     method: 'POST',
-    uri: rtrim(baseUrl) + '/ipfs/add/json',
+    uri: rtrim(dapiBaseUrl, '/') + '/ipfs/add/json',
     body: json,
     headers: {
       Authorization: authToken

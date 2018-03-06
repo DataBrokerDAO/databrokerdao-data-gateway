@@ -20,25 +20,33 @@ async function pollDebug() {
 async function pollLuftDaten() {
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
   let outA = { lastKey: job.lastKey };
+  let outB = {};
   let archives = ['http://archive.luftdaten.info/2015-10-01/']; // await LuftDaten.scanForArchives(job.endpoint, outA);
-  let csvUrls = await LuftDaten.scanArchivesForCsvs(archivesToSync, outB);
+  let csvUrls = await LuftDaten.scanArchivesForCsvs(archives, outB);
 
   // Update job data
   logErrors(job, [outA, outB]);
-  job.lastKey = out.lastKey;
+  job.lastKey = outA.lastKey;
   job.lastSync = moment.now();
-  store.updateCronJob(job);
+  await store.updateCronJob(job);
 
   // Push data
-  csvUrls.forEach(csvUrl => {
-    pusher.push(job, csvUrl);
-  });
+  Promise.map(
+    csvUrls,
+    csvUrl => {
+      return pusher.pushLuftDaten(job, csvUrl);
+    },
+    {
+      concurrency: 4
+    }
+  );
 }
 
 async function pollCityBikeNyc() {
   let job = await store.getCronJobByName(JOB_CITYBIKENYC);
   let out = { lastKey: job.lastKey };
-  let feed = await CityBikeNyc.get
+  let feed = await CityBikeNyc.getStationStatusFeed(job, out);
+  pusher.push(job, feed);
 }
 
 function logErrors(job, logs) {

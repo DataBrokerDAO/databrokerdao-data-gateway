@@ -19,7 +19,7 @@ async function getCronJobs() {
 
 async function updateCronJob(job) {
   let collection = await client.getCollection('cron');
-  await collection.updateOne(job);
+  await collection.replaceOne({ id: job._id }, job);
 }
 
 module.exports = {
