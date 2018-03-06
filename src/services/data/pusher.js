@@ -24,7 +24,6 @@ async function pushLuftDaten(job, sourceUrl) {
     })
     .on('data', payload => {
       // As we only need the header ID... let's destroy the stream here
-      // stream.destroy();
       if (typeof sensorId === 'undefined') {
         sensorID = `${payload.sensor_id}!!##!!${payload.sensor_type}`;
       }
@@ -57,6 +56,7 @@ async function pushLuftDaten(job, sourceUrl) {
   return new Promise((resolve, reject) => {});
 }
 
+// TODO haven't tested this yet
 async function pushCityBikeNyc(job, sourceUrl) {
   return new Promise((resolve, reject) => {
     // Note we purposefully do not use reqeust-promise here but request instead. Streaming the response is discouraged
@@ -91,28 +91,29 @@ async function pushCityBikeNyc(job, sourceUrl) {
   });
 }
 
-function stream(sourceUrl, targetUrl) {
-  // Note we purposefully do not use reqeust-promise here but request instead.
-  // Streaming the response is discouraged as it would grow the memory footprint
-  // for large requests to unnecessarily high levels.
-  request
-    .get(sourceUrl)
-    .on('data', data => {
-      console.log(`Pushing data to ${targetUrl}`);
-    })
-    .on('error', error => {
-      console.log(`Streaming error: ${error}`);
-    })
-    .pipe(
-      request({ uri: targetUrl, method: 'POST' })
-        .on('error', error => {
-          console.log(`Streaming error while pushing ${error}`);
-        })
-        .on('end', error => {
-          console.log(`Successfully streamed all data!!`);
-        })
-    );
-}
+// DISABLED FOR NOW
+// function stream(sourceUrl, targetUrl) {
+//   // Note we purposefully do not use reqeust-promise here but request instead.
+//   // Streaming the response is discouraged as it would grow the memory footprint
+//   // for large requests to unnecessarily high levels.
+//   request
+//     .get(sourceUrl)
+//     .on('data', data => {
+//       console.log(`Pushing data to ${targetUrl}`);
+//     })
+//     .on('error', error => {
+//       console.log(`Streaming error: ${error}`);
+//     })
+//     .pipe(
+//       request({ uri: targetUrl, method: 'POST' })
+//         .on('error', error => {
+//           console.log(`Streaming error while pushing ${error}`);
+//         })
+//         .on('end', error => {
+//           console.log(`Successfully streamed all data!!`);
+//         })
+//     );
+// }
 
 module.exports = {
   stream,

@@ -21,7 +21,7 @@ async function pollLuftDaten() {
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
   let outA = { lastKey: job.lastKey };
   let outB = {};
-  let archives = ['http://archive.luftdaten.info/2015-10-01/']; // await LuftDaten.scanForArchives(job.endpoint, outA);
+  let archives = await LuftDaten.scanForArchives(job.endpoint, outA);
   let csvUrls = await LuftDaten.scanArchivesForCsvs(archives, outB);
 
   // Update job data
@@ -31,17 +31,11 @@ async function pollLuftDaten() {
   await store.updateCronJob(job);
 
   // Push data
-  Promise.map(
-    csvUrls,
-    csvUrl => {
-      return pusher.pushLuftDaten(job, csvUrl);
-    },
-    {
-      concurrency: 4
-    }
-  );
+  let options = { concurrency: 4 };
+  return Promise.map(csvUrls, csvUrl => { return pusher.pushLuftDaten(job, csvUrl); }, options);
 }
 
+// TODO haven't tested this yet
 async function pollCityBikeNyc() {
   let job = await store.getCronJobByName(JOB_CITYBIKENYC);
   let out = { lastKey: job.lastKey };

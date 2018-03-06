@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 
+// TODO haven't tested this yet
 async function getStationStatusFeed(endpoint, out) {
   await rp(endpoint)
     .then(response => {
