@@ -116,7 +116,6 @@ async function pushCityBikeNyc(job, sourceUrl) {
 // }
 
 module.exports = {
-  stream,
   pushLuftDaten,
   pushCityBikeNyc
 };

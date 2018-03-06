@@ -18,21 +18,36 @@ async function pollDebug() {
 }
 
 async function pollLuftDaten() {
+  let start = moment.now();
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
   let outA = { lastKey: job.lastKey };
   let outB = {};
-  let archives = await LuftDaten.scanForArchives(job.endpoint, outA);
-  let csvUrls = await LuftDaten.scanArchivesForCsvs(archives, outB);
 
-  // Update job data
-  logErrors(job, [outA, outB]);
+  console.log(`PollLuftDaten starting sync...`);
+  let archives = await LuftDaten.scanForArchives(job.endpoint, outA);
+  console.log(`PollLuftDaten ${archives.length} archive(s) need to be scanned`);
+  let csvUrls = await LuftDaten.scanArchivesForCsvs(archives, outB);
+  console.log(`PollLuftDaten ${csvUrls.length} csvs need to be synced`);
+
+  // Update job data  logErrors(job, [outA, outB]);
   job.lastKey = outA.lastKey;
   job.lastSync = moment.now();
-  await store.updateCronJob(job);
+  job.duration = job.lastSync - start;
+  try {
+    await store.updateCronJob(job);
+  } catch (e) {
+    console.log(e);
+  }
 
   // Push data
   let options = { concurrency: 4 };
-  return Promise.map(csvUrls, csvUrl => { return pusher.pushLuftDaten(job, csvUrl); }, options);
+  return Promise.map(
+    csvUrls,
+    csvUrl => {
+      return pusher.pushLuftDaten(job, csvUrl);
+    },
+    options
+  );
 }
 
 // TODO haven't tested this yet
