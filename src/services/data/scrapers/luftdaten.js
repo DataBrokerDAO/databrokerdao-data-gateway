@@ -64,11 +64,6 @@ async function scanArchivesForCsvs(archives, out) {
               }
             }
 
-            // TODO remove debug code
-            if (csvs.length >= 10) {
-              resolve(csvs);
-            }
-
             if (csvs.length === 0) {
               // Something 's wrong, perhaps DOM change
               out.error = `Not a single csv found at ${archive}`;

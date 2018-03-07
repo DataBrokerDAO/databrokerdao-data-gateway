@@ -4,7 +4,8 @@
   "description": "Middleware which acts as a data gateway between IoT sensor data streams and the Databroker DAO dApi",
   "main": "src/server.js",
   "scripts": {
-    "test": "NODE_ENV=development nodemon --watch ./src"
+    "start": "nodemon src/server.js",
+    "test": "NODE_ENV=test mocha --timeout 10000 **/tests/*.spec.js"
   },
   "author": "",
   "license": "ISC",

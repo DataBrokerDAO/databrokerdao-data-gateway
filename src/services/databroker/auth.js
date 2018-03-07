@@ -8,7 +8,7 @@ let authToken;
 
 async function authenticate() {
   if (!authenticated()) {
-    let baseUrl = rtrim(process.env.DATABROKER_DAPI_BASE_URL,'/');
+    let baseUrl = rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/');
     let options = {
       method: 'POST',
       uri: `${baseUrl}/authenticate`,
@@ -16,7 +16,7 @@ async function authenticate() {
         privateKeys: {
           ethereum: process.env.DATAGATEWAY_PRIVATE_KEY
         },
-        encrypted: true
+        encrypted: false
       },
       headers: {
         'Content-Type': 'application/json',

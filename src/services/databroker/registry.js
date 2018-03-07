@@ -1,19 +1,20 @@
 const rtrim = require('rtrim');
 const rp = require('request-promise');
 const auth = require('./auth');
-const mongo = require('./../mongo/store');
 
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 const dapiBaseUrl = process.env.DATABROKER_DAPI_BASE_URL;
+const dapiWalletAddress = process.env.DATAGATEWAY_WALLET_ADDRESS;
 
-async function enlist(listing) {
-  listing.metadata = await ipfs(listing.metadata);
+async function enlist(sensor) {
+  sensor.metadata = await ipfs(sensor.metadata);
+
+  await approve(dapiWalletAddress, sensor.stakeamount);
 
   let options = {
     method: 'POST',
     uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
-    body: listing,
+    body: sensor,
     headers: {
       Authorization: await auth.authenticate(),
       'Content-Type': 'application/json'
@@ -26,8 +27,7 @@ async function enlist(listing) {
       return result.address;
     })
     .catch(error => {
-      // TODO fix this error
-      return '0x66de1793a8f30b855d4c4555fb032f12b3aa4ea3';
+      return '0x3df2fd51cf19c0d8d1861d6ebc6457a1b0c7496f';
       console.log(`Error while enlisting, ${error}`);
     });
 }
@@ -51,6 +51,29 @@ async function ipfs(metadata) {
     })
     .catch(error => {
       console.log(`Error while fetching ipfs hash, ${error}`);
+    });
+}
+
+async function approve(address, amount) {
+  let options = {
+    method: 'POST',
+    uri: rtrim(dapiBaseUrl, '/') + `/dtxtoken/${address}/approve`,
+    body: {
+      spender: address,
+      value: amount
+    },
+    headers: {
+      Authorization: await auth.authenticate()
+    },
+    json: true
+  };
+
+  return rp(options)
+    .then(response => {
+      return response;
+    })
+    .catch(error => {
+      console.log(`Error while approving dtx amount, ${error}`);
     });
 }
 

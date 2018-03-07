@@ -5,6 +5,7 @@ const rp = require('request-promise');
 const csv = require('csv-parser');
 const rtrim = require('rtrim');
 const store = require('./../mongo/store');
+const Promise = require('bluebird');
 
 require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
@@ -12,9 +13,9 @@ const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 let listingCache = {};
 
 async function pushLuftDaten(job, sourceUrl) {
-  let listing;
+  let sensor;
   let rows = [];
-  let sent = false;
+
   request
     .get(sourceUrl)
     .pipe(csv({ separator: ';' }))
@@ -22,32 +23,34 @@ async function pushLuftDaten(job, sourceUrl) {
       // Don't care about headers for now
     })
     .on('data', payload => {
-      if (typeof listing === 'undefined') {
-        listing = createLuftDatenSensorListing(job.name, payload);
+      if (typeof sensor === 'undefined') {
+        sensor = createLuftDatenSensorListing(job.name, payload);
+        ensureSensorIsListed(sensor);
       }
+      rows.push(payload);
     })
     .on('end', async result => {
-      let sensorID = listing.metadata.sensorid;
-      let targetUrl = `${rtrim(customDapiBaseUrl, '/')}/${sensorID}/data`;
-
-      ensureSensorIsListed(sensorID);
-
-      let promiseMap = [];
-      rows.forEach(row => {
-        promiseMap.push(
-          rp({ url: targetUrl, method: 'POST', body: row, json: true }).catch(error => {
-            console.log(`Error while pushing ${error}`);
-          })
-        );
-      });
-
-      return Promise.all(promiseMap);
+      let sensorID = sensor.metadata.sensorid;
+      let baseUrl = rtrim(customDapiBaseUrl, '/');
+      let targetUrl = `${baseUrl}/${encodeURIComponent(sensorID)}/data`;
+      return Promise.map(
+        rows,
+        row => {
+          return rp({
+            url: targetUrl,
+            method: 'POST',
+            body: row,
+            json: true
+          }).catch(error => {
+            console.log(`Error while pushing sensor data, ${error}`);
+          });
+        },
+        { concurrency: 4 }
+      );
     })
     .on('error', error => {
       console.log(`Error while streaming ${error}`);
     });
-
-  return new Promise((resolve, reject) => {});
 }
 
 async function pushCityBikeNyc(job, sourceUrl) {
@@ -84,7 +87,7 @@ async function pushCityBikeNyc(job, sourceUrl) {
   });
 }
 
-async function createLuftDatenSensorListing(name, payload) {
+function createLuftDatenSensorListing(name, payload) {
   let delimiter = '!#!';
   return {
     price: '10',
@@ -100,11 +103,17 @@ async function createLuftDatenSensorListing(name, payload) {
   };
 }
 
-async function ensureSensorIsListed(sensorID) {
+function createCustomDapiEndpointUrl(sensorID) {
+  let baseUrl = rtrim(customDapiBaseUrl, '/');
+  return `${baseUrl}/${encodeURIComponent(sensorID)}/data`;
+}
+
+async function ensureSensorIsListed(sensor) {
+  let sensorID = sensor.metadata.sensorid;
   if (typeof listingCache[sensorID] === 'undefined') {
     let isEnlisted = await store.isEnlisted(sensorID);
     if (!isEnlisted) {
-      listingCache[sensorID] = await registry.enlist(listing);
+      listingCache[sensorID] = await registry.enlist(sensor);
     }
   }
 }
