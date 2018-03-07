@@ -4,46 +4,39 @@ const request = require('request');
 const rp = require('request-promise');
 const csv = require('csv-parser');
 const rtrim = require('rtrim');
+const store = require('./../mongo/store');
 
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
+let listingCache = {};
+
 async function pushLuftDaten(job, sourceUrl) {
-  // Note we purposefully do not use reqeust-promise here but request instead. Streaming the response is discouraged
-  // as it would grow the memory footprint for large requests to unnecessarily high levels.
-  let stream = request.get(sourceUrl);
-
-  let sensorId;
+  let listing;
   let rows = [];
-
-  stream
+  let sent = false;
+  request
+    .get(sourceUrl)
     .pipe(csv({ separator: ';' }))
     .on('headers', headerList => {
       // Don't care about headers for now
     })
     .on('data', payload => {
-      // As we only need the header ID... let's destroy the stream here
-      if (typeof sensorId === 'undefined') {
-        sensorID = `${payload.sensor_id}!!##!!${payload.sensor_type}`;
+      if (typeof listing === 'undefined') {
+        listing = createLuftDatenSensorListing(job.name, payload);
       }
-      rows.push(payload);
     })
-    .on('end', result => {
-      let address = registry.ensureListing(sensorID);
-      let targetUrl = `${rtrim(customDapiBaseUrl, '/')}/${address}/data`;
+    .on('end', async result => {
+      let sensorID = listing.metadata.sensorid;
+      let targetUrl = `${rtrim(customDapiBaseUrl, '/')}/${sensorID}/data`;
+
+      ensureSensorIsListed(sensorID);
 
       let promiseMap = [];
       rows.forEach(row => {
         promiseMap.push(
-          rp({
-            url: targetUrl,
-            method: 'POST',
-            body: {
-              payload: row,
-              address: address
-            },
-            json: true
+          rp({ url: targetUrl, method: 'POST', body: row, json: true }).catch(error => {
+            console.log(`Error while pushing ${error}`);
           })
         );
       });
@@ -51,12 +44,12 @@ async function pushLuftDaten(job, sourceUrl) {
       return Promise.all(promiseMap);
     })
     .on('error', error => {
-      console.log(`Error in pusher ${error}`);
+      console.log(`Error while streaming ${error}`);
     });
+
   return new Promise((resolve, reject) => {});
 }
 
-// TODO haven't tested this yet
 async function pushCityBikeNyc(job, sourceUrl) {
   return new Promise((resolve, reject) => {
     // Note we purposefully do not use reqeust-promise here but request instead. Streaming the response is discouraged
@@ -91,29 +84,30 @@ async function pushCityBikeNyc(job, sourceUrl) {
   });
 }
 
-// DISABLED FOR NOW
-// function stream(sourceUrl, targetUrl) {
-//   // Note we purposefully do not use reqeust-promise here but request instead.
-//   // Streaming the response is discouraged as it would grow the memory footprint
-//   // for large requests to unnecessarily high levels.
-//   request
-//     .get(sourceUrl)
-//     .on('data', data => {
-//       console.log(`Pushing data to ${targetUrl}`);
-//     })
-//     .on('error', error => {
-//       console.log(`Streaming error: ${error}`);
-//     })
-//     .pipe(
-//       request({ uri: targetUrl, method: 'POST' })
-//         .on('error', error => {
-//           console.log(`Streaming error while pushing ${error}`);
-//         })
-//         .on('end', error => {
-//           console.log(`Successfully streamed all data!!`);
-//         })
-//     );
-// }
+async function createLuftDatenSensorListing(name, payload) {
+  let delimiter = '!#!';
+  return {
+    price: '10',
+    stakeamount: '10',
+    metadata: {
+      name: name,
+      sensorid: `${name}${delimiter}${payload.sensor_id}${delimiter}${payload.sensor_type}`,
+      geo: {
+        lat: payload.lat,
+        lng: payload.lon
+      }
+    }
+  };
+}
+
+async function ensureSensorIsListed(sensorID) {
+  if (typeof listingCache[sensorID] === 'undefined') {
+    let isEnlisted = await store.isEnlisted(sensorID);
+    if (!isEnlisted) {
+      listingCache[sensorID] = await registry.enlist(listing);
+    }
+  }
+}
 
 module.exports = {
   pushLuftDaten,

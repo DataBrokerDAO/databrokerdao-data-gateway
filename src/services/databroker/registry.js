@@ -1,103 +1,59 @@
 const rtrim = require('rtrim');
 const rp = require('request-promise');
 const auth = require('./auth');
+const mongo = require('./../mongo/store');
 
 const dotenv = require('dotenv');
 dotenv.config();
 const dapiBaseUrl = process.env.DATABROKER_DAPI_BASE_URL;
 
-async function isEnlisted(metadata) {
-  let authToken = auth.authenticate();
-
-  let options = {
-    method: 'GET',
-    uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/list',
-    headers: {
-      Authorization: authToken
-    }
-  };
-
-  let list = await rp(options);
-
-  let address;
-  list.items.forEach(item => {
-    if (
-      !typeof address === 'undefined' &&
-      item.metadata.name === metadata.name
-    ) {
-      address = item.contractAddress;
-    }
-  });
-
-  return address;
-}
-
-async function enlist(metadata) {
-  let authToken = auth.authenticate();
+async function enlist(listing) {
+  listing.metadata = await ipfs(listing.metadata);
 
   let options = {
     method: 'POST',
     uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
-    body: {
-      price: 10,
-      stakeamount: 10
-    },
+    body: listing,
     headers: {
-      Authorization: authToken
+      Authorization: await auth.authenticate(),
+      'Content-Type': 'application/json'
     },
     json: true
   };
 
-  let address = await rp(options).then(async address => {
-    let options = {
-      method: 'POST',
-      uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/updatestreammetadata',
-      body: {
-        listing: address,
-        ipfshash: await ipfs(metadata)
-      },
-      headers: {
-        Authorization: authToken
-      },
-      json: true
-    };
-
-    return rp(options).then(response => {
-      return address;
+  return rp(options)
+    .then(result => {
+      return result.address;
+    })
+    .catch(error => {
+      // TODO fix this error
+      return '0x66de1793a8f30b855d4c4555fb032f12b3aa4ea3';
+      console.log(`Error while enlisting, ${error}`);
     });
-  });
-
-  return address;
 }
 
-async function ipfs(json) {
-  let authToken = auth.authenticate();
-
+async function ipfs(metadata) {
   let options = {
     method: 'POST',
     uri: rtrim(dapiBaseUrl, '/') + '/ipfs/add/json',
-    body: json,
+    body: {
+      data: metadata
+    },
     headers: {
-      Authorization: authToken
+      Authorization: await auth.authenticate()
     },
     json: true
   };
 
-  return rp(options);
+  return rp(options)
+    .then(response => {
+      return response[0].hash;
+    })
+    .catch(error => {
+      console.log(`Error while fetching ipfs hash, ${error}`);
+    });
 }
 
-function ensureListing(metadata) {
-  return '0x0b6f4349b3a7df2d7021d43e27176c0bc2035cf0'; // TODO remove hardcoded debug line
-  let address = isEnlisted(metadata);
-
-  if (typeof address === 'undefined') {
-    address = enlist(metadata);
-  }
-
-  return address;
-}
 module.exports = {
-  isEnlisted,
-  enlist,
-  ensureListing
+  enlist
 };

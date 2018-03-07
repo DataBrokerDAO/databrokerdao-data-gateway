@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const dotenv = require('dotenv');
+const rtrim = require('rtrim');
 
 dotenv.config();
 
@@ -7,14 +8,15 @@ let authToken;
 
 async function authenticate() {
   if (!authenticated()) {
+    let baseUrl = rtrim(process.env.DATABROKER_DAPI_BASE_URL,'/');
     let options = {
       method: 'POST',
-      uri: `${process.env.DATABROKER_DAPI_BASE_URL}/authenticate`,
+      uri: `${baseUrl}/authenticate`,
       body: {
         privateKeys: {
           ethereum: process.env.DATAGATEWAY_PRIVATE_KEY
         },
-        encrypted: false
+        encrypted: true
       },
       headers: {
         'Content-Type': 'application/json',
@@ -25,8 +27,7 @@ async function authenticate() {
 
     await rp(options)
       .then(response => {
-        let res = JSON.parse(response);
-        authToken = res.token;
+        authToken = response.token;
       })
       .catch(error => {
         console.log(error);

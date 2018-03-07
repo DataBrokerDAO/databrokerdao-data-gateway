@@ -1,13 +1,6 @@
 const client = require('../mongo/client');
 
 async function getCronJobByName(name) {
-  if (name === 'DEBUG') {
-    return {
-      name: 'DEBUG',
-      schedule: '* * * * * *'
-    };
-  }
-
   let collection = await client.getCollection('cron');
   return collection.findOne({ name: name });
 }
@@ -22,8 +15,15 @@ async function updateCronJob(job) {
   return collection.replaceOne({ name: job.name }, job, { upsert: true });
 }
 
+async function isEnlisted(sensorID) {
+  let collection = await client.getCollection('streamregistry-items', client.DB_DATABROKER_DAPI);
+  let sensor = await collection.findOne({ sensorid: sensorID });
+  return sensor !== null;
+}
+
 module.exports = {
   getCronJobs,
   getCronJobByName,
-  updateCronJob
+  updateCronJob,
+  isEnlisted
 };
