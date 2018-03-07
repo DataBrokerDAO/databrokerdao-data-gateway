@@ -14,11 +14,19 @@ const JOB_DEBUG = 'DEBUG';
 const JOB_LUFTDATEN = 'luftdaten';
 const JOB_CITYBIKENYC = 'citybikenyc';
 
+let pollLock = {};
+
 async function pollDebug() {
   console.log('Debug poll triggered');
 }
 
 async function pollLuftDaten() {
+  if (typeof pollLock[JOB_LUFTDATEN] !== 'undefined' && pollLock[JOB_LUFTDATEN] === true) {
+    return Promise.resolve();
+  }
+
+  pollLock[JOB_LUFTDATEN] = true;
+
   let start = moment.now();
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
   let outA = { lastKey: job.lastKey };
@@ -36,7 +44,7 @@ async function pollLuftDaten() {
       ? ['http://archive.luftdaten.info/2018-03-05/2018-03-05_bme280_sensor_113.csv']
       : await LuftDaten.scanArchivesForCsvs(archives, outB);
 
-  console.log(`PollLuftDaten ${csvUrls.length} csvs need to be synced`);
+  console.log(`PollLuftDaten ${csvUrls.length} csv(s) need to be synced`);
 
   // Update job data  logErrors(job, [outA, outB]);
   job.lastKey = outA.lastKey;
@@ -51,7 +59,10 @@ async function pollLuftDaten() {
       return pusher.pushLuftDaten(job, csvUrl);
     },
     { concurrency: 4 }
-  );
+  ).then(() => {
+    console.log('CLEAR LOCK');
+    pollLock[JOB_LUFTDATEN] = false;
+  });
 }
 
 // TODO haven't tested this yet

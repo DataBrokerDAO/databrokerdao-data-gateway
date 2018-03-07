@@ -19,14 +19,13 @@ async function scanForArchives(endpoint, out) {
           try {
             let link = tr.children[1].children[0].children[0].raw;
             if (link.endsWith('/')) {
+              out.lastKey = i;
               archivesToSync.push(endpoint + link);
             }
           } catch (e) {
             // We don't care, if indices don't match we're not interested in the contents
           }
         }
-
-        out.lastKey = last;
       });
     })
     .catch(error => {
@@ -43,35 +42,21 @@ async function scanArchivesForCsvs(archives, out) {
     archive => {
       return new Promise((resolve, reject) => {
         rp(archive).then(response => {
-          html.parse(response).then(data => {
-            let csvs = [];
+          let csvs = [];
+          let regexp = /href="(.*.csv)"/g;
+          let match = regexp.exec(response);
+          while (match != null) {
+            csvs.push(archive + match[1]);
+            match = regexp.exec(response);
+          }
 
-            let table = data[2].children[3].children[3];
-            let last = table.children.length - 1;
-            for (let i = 0; i <= last; i++) {
-              let tr = table.children[i];
-              if (tr.type === 'text') {
-                continue;
-              }
+          if (csvs.length === 0) {
+            // Something 's wrong, perhaps DOM change
+            out.error = `Not a single csv found at ${archive}`;
+            console.log(`Not a single csv found at ${archive}`);
+          }
 
-              try {
-                let csv = tr.children[1].children[0].children[0].raw;
-                if (csv.endsWith('.csv')) {
-                  csvs.push(archive + csv);
-                }
-              } catch (e) {
-                // We don't care, if indices don't match we're not interested in the contents
-              }
-            }
-
-            if (csvs.length === 0) {
-              // Something 's wrong, perhaps DOM change
-              out.error = `Not a single csv found at ${archive}`;
-              console.log(`Not a single csv found at ${archive}`);
-            }
-
-            resolve(csvs);
-          });
+          resolve(csvs);
         });
       });
     },

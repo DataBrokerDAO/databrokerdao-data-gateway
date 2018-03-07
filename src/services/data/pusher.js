@@ -1,7 +1,7 @@
 const auth = require('../databroker/auth');
 const registry = require('../databroker/registry');
 const request = require('request');
-const rp = require('request-promise');
+const throttledRequest = require('throttled-request')(request);
 const csv = require('csv-parser');
 const rtrim = require('rtrim');
 const store = require('./../mongo/store');
@@ -12,45 +12,58 @@ const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
 let listingCache = {};
 
+// Throttle requests at 100/s
+throttledRequest.configure({
+  requests: 20,
+  milliseconds: 1000
+});
+
 async function pushLuftDaten(job, sourceUrl) {
   let sensor;
   let rows = [];
+  await new Promise((resolve, reject) => {
+    request
+      .get(sourceUrl)
+      .pipe(csv({ separator: ';' }))
+      .on('headers', headerList => {
+        // Don't care about headers for now
+      })
+      .on('data', payload => {
+        if (typeof sensor === 'undefined') {
+          sensor = createLuftDatenSensorListing(job.name, payload);
+          ensureSensorIsListed(sensor);
+        }
+        rows.push(payload);
+      })
+      .on('end', async result => {
+        resolve();
+      })
+      .on('error', error => {
+        console.log(`Error while streaming ${error}`);
+        reject(error);
+      });
+  });
 
-  request
-    .get(sourceUrl)
-    .pipe(csv({ separator: ';' }))
-    .on('headers', headerList => {
-      // Don't care about headers for now
-    })
-    .on('data', payload => {
-      if (typeof sensor === 'undefined') {
-        sensor = createLuftDatenSensorListing(job.name, payload);
-        ensureSensorIsListed(sensor);
-      }
-      rows.push(payload);
-    })
-    .on('end', async result => {
-      let sensorID = sensor.metadata.sensorid;
-      let baseUrl = rtrim(customDapiBaseUrl, '/');
-      let targetUrl = `${baseUrl}/${encodeURIComponent(sensorID)}/data`;
-      return Promise.map(
-        rows,
-        row => {
-          return rp({
-            url: targetUrl,
-            method: 'POST',
-            body: row,
-            json: true
-          }).catch(error => {
-            console.log(`Error while pushing sensor data, ${error}`);
-          });
+  let targetUrl = createCustomDapiEndpointUrl(sensor.metadata.sensorid);
+
+  return Promise.map(rows, row => {
+    return new Promise((resolve, reject) => {
+      throttledRequest(
+        {
+          url: targetUrl,
+          method: 'POST',
+          body: row,
+          json: true
         },
-        { concurrency: 4 }
+        (error, response) => {
+          if (error) {
+            console.log(`Error while pushing sensor data, ${error}`);
+          }
+          resolve(response);
+        }
       );
-    })
-    .on('error', error => {
-      console.log(`Error while streaming ${error}`);
     });
+  });
 }
 
 async function pushCityBikeNyc(job, sourceUrl) {
