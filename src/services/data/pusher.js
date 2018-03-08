@@ -6,15 +6,13 @@ const csv = require('csv-parser');
 const rtrim = require('rtrim');
 const store = require('./../mongo/store');
 const Promise = require('bluebird');
+const cache = require('../util/cache');
 
 require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
-let listingCache = {};
-
-// Throttle requests at 100/s
 throttledRequest.configure({
-  requests: 20,
+  requests: 2,
   milliseconds: 1000
 });
 
@@ -28,42 +26,54 @@ async function pushLuftDaten(job, sourceUrl) {
       .on('headers', headerList => {
         // Don't care about headers for now
       })
-      .on('data', payload => {
+      .on('data', async payload => {
         if (typeof sensor === 'undefined') {
           sensor = createLuftDatenSensorListing(job.name, payload);
-          ensureSensorIsListed(sensor);
         }
+
+        // Note we could call the custom dapi here already with our payload, however calling it on 'end' has proven to improve the
+        // Too Many Request issue we've been facing + it ensures the possibly recently enlisted sensor got a chance to sync to mongo
         rows.push(payload);
       })
       .on('end', async result => {
-        resolve();
+        return pushLuftDatenCensorData(sensor, rows);
       })
       .on('error', error => {
         console.log(`Error while streaming ${error}`);
         reject(error);
       });
   });
+}
 
-  let targetUrl = createCustomDapiEndpointUrl(sensor.metadata.sensorid);
+async function pushLuftDatenCensorData(sensor, rows) {
+  return ensureSensorIsListed(sensor)
+    .then(sensorID => {
+      let targetUrl = createCustomDapiEndpointUrl(sensorID);
 
-  return Promise.map(rows, row => {
-    return new Promise((resolve, reject) => {
-      throttledRequest(
-        {
-          url: targetUrl,
-          method: 'POST',
-          body: row,
-          json: true
-        },
-        (error, response) => {
-          if (error) {
-            console.log(`Error while pushing sensor data, ${error}`);
-          }
-          resolve(response);
-        }
-      );
+      return Promise.map(rows, row => {
+        return new Promise((resolve, reject) => {
+          throttledRequest(
+            {
+              url: targetUrl,
+              method: 'POST',
+              body: row,
+              json: true
+            },
+            (error, response) => {
+              if (error) {
+                console.log(`Error while pushing sensor data, ${error}`);
+                reject(error);
+              } else {
+                resolve(response);
+              }
+            }
+          );
+        });
+      });
+    })
+    .catch(error => {
+      console.log(`Error while pushing sensor data, ${error}`);
     });
-  });
 }
 
 async function pushCityBikeNyc(job, sourceUrl) {
@@ -122,13 +132,21 @@ function createCustomDapiEndpointUrl(sensorID) {
 }
 
 async function ensureSensorIsListed(sensor) {
-  let sensorID = sensor.metadata.sensorid;
-  if (typeof listingCache[sensorID] === 'undefined') {
-    let isEnlisted = await store.isEnlisted(sensorID);
-    if (!isEnlisted) {
-      listingCache[sensorID] = await registry.enlist(sensor);
+  return new Promise(async (resolve, reject) => {
+    try {
+      let sensorID = sensor.metadata.sensorid;
+      if (typeof cache.listingCache[sensorID] === 'undefined') {
+        let isEnlisted = await store.isEnlisted(sensorID);
+        if (!isEnlisted) {
+          cache.listingCache[sensorID] = await registry.enlistSensor(sensor);
+        }
+        resolve(sensorID);
+      }
+    } catch (e) {
+      console.log(`Error while enlisting ${e}`);
+      reject(e);
     }
-  }
+  });
 }
 
 module.exports = {

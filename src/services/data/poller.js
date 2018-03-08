@@ -4,6 +4,7 @@ const CityBikeNyc = require('./scrapers/citybikenyc');
 const request = require('request');
 const moment = require('moment');
 const store = require('../mongo/store');
+const lock = require('../util/lock');
 const pusher = require('../data/pusher');
 require('dotenv').config();
 
@@ -14,18 +15,15 @@ const JOB_DEBUG = 'DEBUG';
 const JOB_LUFTDATEN = 'luftdaten';
 const JOB_CITYBIKENYC = 'citybikenyc';
 
-let pollLock = {};
-
 async function pollDebug() {
   console.log('Debug poll triggered');
 }
 
 async function pollLuftDaten() {
-  if (typeof pollLock[JOB_LUFTDATEN] !== 'undefined' && pollLock[JOB_LUFTDATEN] === true) {
+  if (isLocked(JOB_LUFTDATEN)) {
     return Promise.resolve();
   }
-
-  pollLock[JOB_LUFTDATEN] = true;
+  setLock(JOB_LUFTDATEN);
 
   let start = moment.now();
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
@@ -60,8 +58,7 @@ async function pollLuftDaten() {
     },
     { concurrency: 4 }
   ).then(() => {
-    console.log('CLEAR LOCK');
-    pollLock[JOB_LUFTDATEN] = false;
+    removeLock(JOB_LUFTDATEN);
   });
 }
 
@@ -84,6 +81,20 @@ function logErrors(job, logs) {
       job.errors.push([now, log.error]);
     }
   });
+}
+
+function isLocked(job) {
+  return typeof lock.pollLock[job] !== 'undefined' && lock.pollLock[job] === true;
+}
+
+function setLock(job) {
+  console.log(`Acquiring lock for job ${job}`);
+  lock.pollLock[job] = true;
+}
+
+function removeLock() {
+  console.log(`Removing lock for job ${job}`);
+  lock.pollLock[job] = false;
 }
 
 module.exports = {

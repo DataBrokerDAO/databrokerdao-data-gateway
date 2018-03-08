@@ -1,16 +1,115 @@
 const rtrim = require('rtrim');
-const rp = require('request-promise');
 const auth = require('./auth');
+const async = require('async');
+const rp = require('request-promise');
 
 require('dotenv').config();
-const dapiBaseUrl = process.env.DATABROKER_DAPI_BASE_URL;
-const dapiWalletAddress = process.env.DATAGATEWAY_WALLET_ADDRESS;
+
+async function enlistSensor(sensor) {
+  return new Promise((resolve, reject) => {
+    async.waterfall(
+      [
+        function stepIfsHash(step) {
+          ipfs(sensor.metadata)
+            .then(response => {
+              sensor.metadata = response[0].hash;
+              step();
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepListDtxTokenRegistry(step) {
+          list()
+            .then(response => {
+              let spenderAddress = response.base.key;
+              let tokenAddress = response.items[0].contractaddress;
+              step(null, spenderAddress, tokenAddress);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepApproveDtxAmount(spenderAddress, tokenAddress, step) {
+          approve(tokenAddress, spenderAddress, sensor.stakeamount)
+            .then(response => {
+              step();
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepEnlistSensor(step) {
+          enlist(sensor)
+            .then(response => {
+              step(null, response);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function done(address) {
+          resolve(address);
+        }
+      ],
+      error => {
+        if (error) {
+          resolve('0x3df2fd51cf19c0d8d1861d6ebc6457a1b0c7496f');
+          // console.log(`Error while enlisting, ${error}`);
+          // reject(error);
+        }
+      }
+    );
+  });
+}
+
+async function list() {
+  let options = {
+    method: 'GET',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/dtxtokenregistry/list',
+    headers: {
+      Authorization: await auth.authenticate()
+    },
+    json: true
+  };
+
+  return rp(options);
+}
+
+async function ipfs(metadata) {
+  let options = {
+    method: 'POST',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/ipfs/add/json',
+    body: {
+      data: metadata
+    },
+    headers: {
+      Authorization: await auth.authenticate()
+    },
+    json: true
+  };
+
+  return rp(options);
+}
+
+async function approve(tokenAddress, spenderAddress, amount) {
+  let options = {
+    method: 'POST',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + `/dtxtoken/${tokenAddress}/approve`,
+    body: {
+      spender: spenderAddress,
+      value: amount
+    },
+    headers: {
+      Authorization: await auth.authenticate()
+    },
+    json: true
+  };
+
+  return rp(options);
+}
 
 async function enlist(sensor) {
-  sensor.metadata = await ipfs(sensor.metadata);
-
-  await approve(dapiWalletAddress, sensor.stakeamount);
-
   let options = {
     method: 'POST',
     uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
@@ -22,61 +121,9 @@ async function enlist(sensor) {
     json: true
   };
 
-  return rp(options)
-    .then(result => {
-      return result.address;
-    })
-    .catch(error => {
-      return '0x3df2fd51cf19c0d8d1861d6ebc6457a1b0c7496f';
-      console.log(`Error while enlisting, ${error}`);
-    });
-}
-
-async function ipfs(metadata) {
-  let options = {
-    method: 'POST',
-    uri: rtrim(dapiBaseUrl, '/') + '/ipfs/add/json',
-    body: {
-      data: metadata
-    },
-    headers: {
-      Authorization: await auth.authenticate()
-    },
-    json: true
-  };
-
-  return rp(options)
-    .then(response => {
-      return response[0].hash;
-    })
-    .catch(error => {
-      console.log(`Error while fetching ipfs hash, ${error}`);
-    });
-}
-
-async function approve(address, amount) {
-  let options = {
-    method: 'POST',
-    uri: rtrim(dapiBaseUrl, '/') + `/dtxtoken/${address}/approve`,
-    body: {
-      spender: address,
-      value: amount
-    },
-    headers: {
-      Authorization: await auth.authenticate()
-    },
-    json: true
-  };
-
-  return rp(options)
-    .then(response => {
-      return response;
-    })
-    .catch(error => {
-      console.log(`Error while approving dtx amount, ${error}`);
-    });
+  return rp(options);
 }
 
 module.exports = {
-  enlist
+  enlistSensor
 };
