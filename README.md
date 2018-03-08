@@ -1,7 +1,15 @@
-This is a DataGateway middleware, acting as the GatewayProvider (e.g. Proximus) for demoing purposes. 
-This middleware has sensor data flowing through it and will push that to the Custom DApi endpoint. 
-In the .env file you'll find all config variables required to set this up.
+# Data Gateway Middleware
 
+# Info
+This middleware acts as a GatewayProvider (e.g. Proximus), for demoing purposes. 
+These gateway providers have a ton of sensor data flowing through them, whenever
+a sensor has new data it needs to push that data to the Custom DApi.
+
+Here we'll even enlist the sensors, in production however this won't be the case.
+The sensors will have been enlisted through the UI by the sensor owner. 
+
+## Setup
+In the .env file you'll find all config variables required to set this up.
 ```
 ATLAS_CONNECTION_STRING=[enter your connection string]
 ATLAS_DATABASE_NAME_DATAGATEWAY=[enter your desired mongo database, used databroker-datagateway]
