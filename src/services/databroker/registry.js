@@ -9,7 +9,7 @@ async function enlistSensor(sensor) {
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
-        function authenticate(step) {
+        function stepAuthenticate(step) {
           auth
             .authenticate()
             .then(authToken => {

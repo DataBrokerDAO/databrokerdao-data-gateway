@@ -10,7 +10,7 @@ async function scanForArchives(endpoint, out) {
         let table = data[2].children[3].children[3];
         let last = table.children.length - 1;
 
-        for (let i = out.lastKey; i <= last; i++) {
+        for (let i = out.lastKey + 1; i <= last; i++) {
           let tr = table.children[i];
           if (tr.type === 'text') {
             continue;
