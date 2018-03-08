@@ -36,6 +36,12 @@ async function pushLuftDaten(job, sourceUrl) {
         rows.push(payload);
       })
       .on('end', async result => {
+        // Only sync leuven data for now
+        if (sensor.leuven === false) {
+          return Promise.resolve();
+        }
+        delete sensor.leuven;
+
         return pushLuftDatenCensorData(sensor, rows)
           .then(() => {
             resolve();
@@ -121,6 +127,13 @@ async function pushCityBikeNyc(job, sourceUrl) {
 }
 
 function createLuftDatenSensorListing(name, payload) {
+  let leuven = false;
+  if (parseFloat(payload.lat) >= 50.814562 && parseFloat(payload.lat) <= 50.949668) {
+    if (parseFloat(payload.lon) >= 4.660596 && parseFloat(payload.lon) <= 4.727477) {
+      leuven = true;
+    }
+  }
+
   let delimiter = '!#!';
   return {
     price: '10',
@@ -131,8 +144,12 @@ function createLuftDatenSensorListing(name, payload) {
       geo: {
         lat: payload.lat,
         lng: payload.lon
-      }
-    }
+      },
+      type: payload.sensor_type,
+      example: JSON.stringify(payload),
+      updateinterval: 86400000
+    },
+    leuven: leuven
   };
 }
 

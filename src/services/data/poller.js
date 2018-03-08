@@ -48,7 +48,6 @@ async function pollLuftDaten() {
   job.lastKey = outA.lastKey;
   job.lastSync = moment.now();
   job.duration = job.lastSync - start;
-  await store.updateCronJob(job);
 
   // Push data
   let total = csvUrls.length;
@@ -57,13 +56,14 @@ async function pollLuftDaten() {
     csvUrl => {
       return pusher.pushLuftDaten(job, csvUrl).then(() => {
         total--;
-        if (total % 10 === 0) {
+        if (total % 100 === 0) {
           console.log(`${total} csv(s) left`);
         }
       });
     },
     { concurrency: 16 }
-  ).then(() => {
+  ).then(async () => {
+    await store.updateCronJob(job);
     removeLock(JOB_LUFTDATEN);
   });
 }
