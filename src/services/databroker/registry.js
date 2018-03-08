@@ -9,38 +9,48 @@ async function enlistSensor(sensor) {
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
-        function stepIfsHash(step) {
-          ipfs(sensor.metadata)
-            .then(response => {
-              sensor.metadata = response[0].hash;
-              step();
+        function authenticate(step) {
+          auth
+            .authenticate()
+            .then(authToken => {
+              step(null, authToken);
             })
             .catch(error => {
               step(new Error(error));
             });
         },
-        function stepListDtxTokenRegistry(step) {
-          list()
+        function stepIpfsHash(authToken, step) {
+          ipfs(authToken, sensor.metadata)
+            .then(response => {
+              sensor.metadata = response[0].hash;
+              step(null, authToken);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepListStreamRegistry(authToken, step) {
+          list(authToken)
             .then(response => {
               let spenderAddress = response.base.key;
               let tokenAddress = response.items[0].contractaddress;
-              step(null, spenderAddress, tokenAddress);
+              step(null, authToken, spenderAddress, tokenAddress);
             })
             .catch(error => {
               step(new Error(error));
             });
         },
-        function stepApproveDtxAmount(spenderAddress, tokenAddress, step) {
-          approve(tokenAddress, spenderAddress, sensor.stakeamount)
+        function stepApproveDtxAmount(authToken, spenderAddress, tokenAddress, step) {
+          approve(authToken, tokenAddress, spenderAddress, sensor.stakeamount)
             .then(response => {
-              step();
+              step(null, authToken);
             })
             .catch(error => {
               step(new Error(error));
             });
         },
-        function stepEnlistSensor(step) {
-          enlist(sensor)
+        function stepEnlistSensor(authToken, step) {
+          enlist(authToken, sensor)
             .then(response => {
               step(null, response);
             })
@@ -63,37 +73,33 @@ async function enlistSensor(sensor) {
   });
 }
 
-async function list() {
-  let options = {
+async function list(authToken) {
+  return rp({
     method: 'GET',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/dtxtokenregistry/list',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/list',
     headers: {
-      Authorization: await auth.authenticate()
+      Authorization: authToken
     },
     json: true
-  };
-
-  return rp(options);
+  });
 }
 
-async function ipfs(metadata) {
-  let options = {
+async function ipfs(authToken, metadata) {
+  return rp({
     method: 'POST',
     uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/ipfs/add/json',
     body: {
       data: metadata
     },
     headers: {
-      Authorization: await auth.authenticate()
+      Authorization: authToken
     },
     json: true
-  };
-
-  return rp(options);
+  });
 }
 
-async function approve(tokenAddress, spenderAddress, amount) {
-  let options = {
+async function approve(authToken, tokenAddress, spenderAddress, amount) {
+  return rp({
     method: 'POST',
     uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + `/dtxtoken/${tokenAddress}/approve`,
     body: {
@@ -101,27 +107,23 @@ async function approve(tokenAddress, spenderAddress, amount) {
       value: amount
     },
     headers: {
-      Authorization: await auth.authenticate()
+      Authorization: authToken
     },
     json: true
-  };
-
-  return rp(options);
+  });
 }
 
-async function enlist(sensor) {
-  let options = {
+async function enlist(authToken, sensor) {
+  return rp({
     method: 'POST',
     uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
     body: sensor,
     headers: {
-      Authorization: await auth.authenticate(),
+      Authorization: authToken,
       'Content-Type': 'application/json'
     },
     json: true
-  };
-
-  return rp(options);
+  });
 }
 
 module.exports = {

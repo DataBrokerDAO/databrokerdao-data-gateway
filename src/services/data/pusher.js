@@ -12,7 +12,7 @@ require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
 throttledRequest.configure({
-  requests: 2,
+  requests: 4,
   milliseconds: 1000
 });
 
@@ -36,7 +36,14 @@ async function pushLuftDaten(job, sourceUrl) {
         rows.push(payload);
       })
       .on('end', async result => {
-        return pushLuftDatenCensorData(sensor, rows);
+        return pushLuftDatenCensorData(sensor, rows)
+          .then(() => {
+            resolve();
+          })
+          .catch(error => {
+            console.log(`Error while streaming ${error}`);
+            reject(error);
+          });
       })
       .on('error', error => {
         console.log(`Error while streaming ${error}`);
@@ -50,26 +57,29 @@ async function pushLuftDatenCensorData(sensor, rows) {
     .then(sensorID => {
       let targetUrl = createCustomDapiEndpointUrl(sensorID);
 
-      return Promise.map(rows, row => {
-        return new Promise((resolve, reject) => {
-          throttledRequest(
-            {
-              url: targetUrl,
-              method: 'POST',
-              body: row,
-              json: true
-            },
-            (error, response) => {
-              if (error) {
-                console.log(`Error while pushing sensor data, ${error}`);
-                reject(error);
-              } else {
-                resolve(response);
+      return Promise.map(
+        rows,
+        row => {
+          return new Promise((resolve, reject) => {
+            throttledRequest(
+              {
+                url: targetUrl,
+                method: 'POST',
+                body: row,
+                json: true
+              },
+              (error, response) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(response);
+                }
               }
-            }
-          );
-        });
-      });
+            );
+          });
+        },
+        { concurrency: 4 }
+      );
     })
     .catch(error => {
       console.log(`Error while pushing sensor data, ${error}`);

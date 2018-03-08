@@ -51,12 +51,18 @@ async function pollLuftDaten() {
   await store.updateCronJob(job);
 
   // Push data
+  let total = csvUrls.length;
   return Promise.map(
     csvUrls,
     csvUrl => {
-      return pusher.pushLuftDaten(job, csvUrl);
+      return pusher.pushLuftDaten(job, csvUrl).then(() => {
+        total--;
+        if (total % 10 === 0) {
+          console.log(`${total} csv(s) left`);
+        }
+      });
     },
-    { concurrency: 4 }
+    { concurrency: 16 }
   ).then(() => {
     removeLock(JOB_LUFTDATEN);
   });
@@ -92,7 +98,7 @@ function setLock(job) {
   lock.pollLock[job] = true;
 }
 
-function removeLock() {
+function removeLock(job) {
   console.log(`Removing lock for job ${job}`);
   lock.pollLock[job] = false;
 }
