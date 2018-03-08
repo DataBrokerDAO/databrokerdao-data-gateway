@@ -38,7 +38,7 @@ async function pushLuftDaten(job, sourceUrl) {
       .on('end', async result => {
         // Only sync leuven data for now
         if (sensor.leuven === false) {
-          return Promise.resolve();
+          resolve();
         }
         delete sensor.leuven;
 
