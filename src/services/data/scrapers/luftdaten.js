@@ -2,6 +2,8 @@ const Promise = require('bluebird');
 const rp = require('request-promise');
 const html = require('../../util/html');
 
+require('dotenv').config();
+
 async function scanForArchives(endpoint, out) {
   let archivesToSync = [];
   await rp(endpoint)
@@ -61,7 +63,7 @@ async function scanArchivesForCsvs(archives, out) {
       });
     },
     {
-      concurrency: 4
+      concurrency: parseInt(process.env.CONCURRENCY, 10)
     }
   );
 

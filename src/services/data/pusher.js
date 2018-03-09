@@ -7,12 +7,13 @@ const rtrim = require('rtrim');
 const store = require('./../mongo/store');
 const Promise = require('bluebird');
 const cache = require('../util/cache');
+const coords = require('../util/coords');
 
 require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
 throttledRequest.configure({
-  requests: 4,
+  requests: parseInt(process.env.CONCURRENCY, 10),
   milliseconds: 1000
 });
 
@@ -33,14 +34,14 @@ async function pushLuftDaten(job, sourceUrl) {
 
         // Note we could call the custom dapi here already with our payload, however calling it on 'end' has proven to improve the
         // Too Many Request issue we've been facing + it ensures the possibly recently enlisted sensor got a chance to sync to mongo
-        rows.push(payload);
+        if (sensor !== null && rows.length < 100) {
+          rows.push(payload);
+        }
       })
       .on('end', async result => {
-        // Only sync leuven data for now
-        if (sensor.leuven === false) {
-          resolve();
+        if (typeof sensor === 'undefined' || sensor === null) {
+          return resolve();
         }
-        delete sensor.leuven;
 
         return pushLuftDatenCensorData(sensor, rows)
           .then(() => {
@@ -62,7 +63,6 @@ async function pushLuftDatenCensorData(sensor, rows) {
   return ensureSensorIsListed(sensor)
     .then(sensorID => {
       let targetUrl = createCustomDapiEndpointUrl(sensorID);
-
       return Promise.map(
         rows,
         row => {
@@ -84,7 +84,7 @@ async function pushLuftDatenCensorData(sensor, rows) {
             );
           });
         },
-        { concurrency: 4 }
+        { concurrency: parseInt(process.env.CONCURRENCY, 10) }
       );
     })
     .catch(error => {
@@ -127,11 +127,8 @@ async function pushCityBikeNyc(job, sourceUrl) {
 }
 
 function createLuftDatenSensorListing(name, payload) {
-  let leuven = false;
-  if (parseFloat(payload.lat) >= 50.814562 && parseFloat(payload.lat) <= 50.949668) {
-    if (parseFloat(payload.lon) >= 4.660596 && parseFloat(payload.lon) <= 4.727477) {
-      leuven = true;
-    }
+  if (!coords.inLeuven(payload)) {
+    return null;
   }
 
   let delimiter = '!#!';
@@ -148,8 +145,7 @@ function createLuftDatenSensorListing(name, payload) {
       type: payload.sensor_type,
       example: JSON.stringify(payload),
       updateinterval: 86400000
-    },
-    leuven: leuven
+    }
   };
 }
 

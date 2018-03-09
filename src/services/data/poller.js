@@ -61,7 +61,7 @@ async function pollLuftDaten() {
         }
       });
     },
-    { concurrency: 16 }
+    { concurrency: parseInt(process.env.CONCURRENCY, 10) }
   ).then(async () => {
     await store.updateCronJob(job);
     removeLock(JOB_LUFTDATEN);
