@@ -31,7 +31,7 @@ async function pushLuftDaten(job, sourceUrl) {
       })
       .on('data', async payload => {
         if (typeof sensor === 'undefined') {
-          sensor = createLuftDatenSensorListing(job.name, payload);
+          sensor = createLuftDatenSensorListing(payload);
         }
 
         // Note we could call the custom dapi here already with our payload, however calling it on 'end' has proven to improve the
@@ -122,22 +122,52 @@ async function pushCityBikeNyc(job, station, status) {
     });
 }
 
-function createLuftDatenSensorListing(name, payload) {
+function createLuftDatenSensorListing(payload) {
   if (!coords.inLeuven(payload)) {
     return null;
+  }
+
+  let type;
+  let name;
+
+  if (typeof payload.pressure !== 'undefined') {
+    type = 'pressure';
+    name = `Luftdaten Press ${payload.sensor_id}`;
+    delete payload.temperature;
+    delete payload.humidity;
+  } else if (typeof payload.temperature !== 'undefined') {
+    if (Math.random() === 1) {
+      type = 'temperature';
+      name = `Luftdaten Temp ${payload.sensor_id}`;
+      delete payload.humidity;
+    } else {
+      type = 'humidity';
+      name = `Luftdaten Hum ${payload.sensor_id}`;
+      delete payload.temperature;
+    }
+  } else if (typeof payload.P1 !== 'undefined') {
+    if (Math.random() === 1) {
+      type = 'PM2.5';
+      name = `Luftdaten PM2.5 ${payload.sensor_id}`;
+      delete payload.P1;
+    } else {
+      type = 'PM10';
+      name = `Luftdaten PM10 ${payload.sensor_id}`;
+      delete payload.P2;
+    }
   }
 
   return {
     price: '10',
     stakeamount: '10',
     metadata: {
-      name: `${payload.sensor_id} ${payload.sensor_type}`,
-      sensorid: `${name}${delimiter}${payload.sensor_id}${delimiter}${payload.sensor_type}`,
+      name: name,
+      sensorid: `luftdaten${delimiter}${payload.sensor_id}${delimiter}${payload.sensor_type}`,
       geo: {
         lat: payload.lat,
         lng: payload.lon
       },
-      type: payload.sensor_type,
+      type: type,
       example: JSON.stringify(payload),
       updateinterval: 86400000
     }

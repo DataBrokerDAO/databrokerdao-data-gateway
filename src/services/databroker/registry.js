@@ -61,6 +61,10 @@ async function enlistSensor(sensor) {
         function stepEnlistSensor(authToken, step) {
           enlist(authToken, sensor)
             .then(response => {
+              if (typeof response.events[0] === 'undefined') {
+                console.log(JSON.stringify(sensor));
+                console.log(response);
+              }
               step(null, response.events[0].listing);
             })
             .catch(error => {
