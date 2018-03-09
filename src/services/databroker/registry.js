@@ -29,11 +29,20 @@ async function enlistSensor(sensor) {
               step(new Error(error));
             });
         },
-        function stepListStreamRegistry(authToken, step) {
-          list(authToken)
+        function stepListDtxTokenRegistry(authToken, step) {
+          listDtxTokenRegistry(authToken)
+            .then(response => {
+              let tokenAddress = response.items[0].contractaddress;
+              step(null, authToken, tokenAddress);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepListStreamRegistry(authToken, tokenAddress, step) {
+          listStreamRegistry(authToken)
             .then(response => {
               let spenderAddress = response.base.key;
-              let tokenAddress = response.items[0].contractaddress;
               step(null, authToken, spenderAddress, tokenAddress);
             })
             .catch(error => {
@@ -52,7 +61,7 @@ async function enlistSensor(sensor) {
         function stepEnlistSensor(authToken, step) {
           enlist(authToken, sensor)
             .then(response => {
-              step(null, response);
+              step(null, response.events[0].listing);
             })
             .catch(error => {
               step(new Error(error));
@@ -73,10 +82,21 @@ async function enlistSensor(sensor) {
   });
 }
 
-async function list(authToken) {
+async function listStreamRegistry(authToken) {
   return rp({
     method: 'GET',
     uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/list',
+    headers: {
+      Authorization: authToken
+    },
+    json: true
+  });
+}
+
+async function listDtxTokenRegistry(authToken) {
+  return rp({
+    method: 'GET',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/dtxtokenregistry/list',
     headers: {
       Authorization: authToken
     },
@@ -116,7 +136,7 @@ async function approve(authToken, tokenAddress, spenderAddress, amount) {
 async function enlist(authToken, sensor) {
   return rp({
     method: 'POST',
-    uri: rtrim(dapiBaseUrl, '/') + '/streamregistry/enlist',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/enlist',
     body: sensor,
     headers: {
       Authorization: authToken,
