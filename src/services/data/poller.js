@@ -70,10 +70,35 @@ async function pollLuftDaten() {
 
 // TODO haven't tested this yet
 async function pollCityBikeNyc() {
+  if (isLocked(JOB_CITYBIKENYC)) {
+    return Promise.resolve();
+  }
+  setLock(JOB_CITYBIKENYC);
+
+  let start = moment.now();
   let job = await store.getCronJobByName(JOB_CITYBIKENYC);
-  let out = { lastKey: job.lastKey };
-  let feed = await CityBikeNyc.getStationStatusFeed(job, out);
-  pusher.push(job, feed);
+  let outA = { lastKey: 0 };
+  let outB = { lastKey: 0 };
+
+  let stations = await CityBikeNyc.getStations(job.endpoint, outA);
+  let statuses = await CityBikeNyc.getStationStatuses(job.endpoint, outB);
+
+  let newLastKey = Math.min(outA.lastKey, outB.lastKey);
+  if (job.lastKey >= newLastKey) {
+    return Promise.resolve();
+  }
+
+  let stationMap = {};
+  for (let i = 0; i < stations.data.stations.length; i++) {
+    stationMap[stations.data.stations[i].station_id] = stations.data.stations[i];
+  }
+
+  return Promise.map(statuses.data.stations, status => {
+    return pusher.pushCityBikeNyc(job, stationMap[status.station_id], status);
+  }).then(async () => {
+    await store.updateCronJob(job);
+    removeLock(JOB_CITYBIKENYC);
+  });
 }
 
 function logErrors(job, logs) {
@@ -94,7 +119,7 @@ function isLocked(job) {
 }
 
 function setLock(job) {
-  console.log(`Acquiring lock for job ${job}`);
+  console.log(`Acquired lock for job ${job}`);
   lock.pollLock[job] = true;
 }
 

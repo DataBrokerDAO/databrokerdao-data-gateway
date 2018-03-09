@@ -1,32 +1,31 @@
 const rp = require('request-promise');
 
-// TODO haven't tested this yet
-async function getStationStatusFeed(endpoint, out) {
-  await rp(endpoint)
-    .then(response => {
-      let json = JSON.parse(response);
+async function getStations(endpoint, out) {
+  let stations = await getFeed(endpoint, 'station_information');
+  out.lastKey = stations.last_updated;
+  return stations;
+}
 
-      // Return early if we've already fetched the last status
-      if (out.lastKey >= json.last_updated) {
-        return;
+async function getStationStatuses(endpoint, out) {
+  let statuses = await getFeed(endpoint, 'station_status');
+  out.lastKey = statuses.last_updated;
+  return statuses;
+}
+
+function getFeed(endpoint, name) {
+  return rp(endpoint).then(response => {
+    let json = JSON.parse(response);
+    for (let i = 0, len = json.data.en.feeds.length; i < len; i++) {
+      if (json.data.en.feeds[i].name === name) {
+        return rp(json.data.en.feeds[i].url).then(response => {
+          return JSON.parse(response);
+        });
       }
-      out.lastKey = json.last_updated;
-
-      let url;
-      json.data.en.feeds.forEach(feed => {
-        if (feed.name === 'station_status') {
-          url = feed.url;
-        }
-      });
-
-      return url;
-    })
-    .catch(error => {
-      out.error = error;
-      console.log(error);
-    });
+    }
+  });
 }
 
 module.exports = {
-  getStationStatusFeed
+  getStations,
+  getStationStatuses
 };

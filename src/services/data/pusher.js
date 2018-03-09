@@ -12,6 +12,8 @@ const coords = require('../util/coords');
 require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
 
+const delimiter = '!#!';
+
 throttledRequest.configure({
   requests: parseInt(process.env.CONCURRENCY, 10),
   milliseconds: 1000
@@ -43,7 +45,7 @@ async function pushLuftDaten(job, sourceUrl) {
           return resolve();
         }
 
-        return pushLuftDatenCensorData(sensor, rows)
+        return pushLuftDatenSensorData(sensor, rows)
           .then(() => {
             resolve();
           })
@@ -59,7 +61,7 @@ async function pushLuftDaten(job, sourceUrl) {
   });
 }
 
-async function pushLuftDatenCensorData(sensor, rows) {
+async function pushLuftDatenSensorData(sensor, rows) {
   return ensureSensorIsListed(sensor)
     .then(sensorID => {
       let targetUrl = createCustomDapiEndpointUrl(sensorID);
@@ -92,38 +94,32 @@ async function pushLuftDatenCensorData(sensor, rows) {
     });
 }
 
-async function pushCityBikeNyc(job, sourceUrl) {
-  return new Promise((resolve, reject) => {
-    // Note we purposefully do not use reqeust-promise here but request instead. Streaming the response is discouraged
-    // as it would grow the memory footprint for large requests to unnecessarily high levels.
-    let stream = request.get(sourceUrl);
-
-    stream
-      .pipe(csv({ separator: ';' }))
-      .on('headers', headerList => {
-        // Don't care about headers for now
-      })
-      .on('data', payload => {
-        // As we only need the header ID... let's destroy the stream here
-        // stream.destroy();
-
-        let sensorID = `${data.sensor_id}!!##!!${data.sensor_type}`;
-        let address = registry.ensureListing(sensorID);
-        let targetUrl = rtrim(customDapiBaseUrl, '/') + '/data';
-
-        request.post({
-          address: address,
-          url: targetUrl,
-          form: {
-            address,
-            payload
+async function pushCityBikeNyc(job, station, status) {
+  let sensor = createCityBikeNycSensorListing(job.name, station, status);
+  return ensureSensorIsListed(sensor)
+    .then(sensorID => {
+      let targetUrl = createCustomDapiEndpointUrl(sensorID);
+      return new Promise((resolve, reject) => {
+        throttledRequest(
+          {
+            url: targetUrl,
+            method: 'POST',
+            body: status,
+            json: true
+          },
+          (error, response) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(response);
+            }
           }
-        });
-      })
-      .on('end', result => {
-        resolve(result);
+        );
       });
-  });
+    })
+    .catch(error => {
+      console.log(`Error while pushing sensor data, ${error}`);
+    });
 }
 
 function createLuftDatenSensorListing(name, payload) {
@@ -131,7 +127,6 @@ function createLuftDatenSensorListing(name, payload) {
     return null;
   }
 
-  let delimiter = '!#!';
   return {
     price: '10',
     stakeamount: '10',
@@ -144,6 +139,24 @@ function createLuftDatenSensorListing(name, payload) {
       },
       type: payload.sensor_type,
       example: JSON.stringify(payload),
+      updateinterval: 86400000
+    }
+  };
+}
+
+function createCityBikeNycSensorListing(name, payload, example) {
+  return {
+    price: '10',
+    stakeamount: '10',
+    metadata: {
+      name: name,
+      sensorid: `${name}${delimiter}${payload.station_id}${delimiter}station`,
+      geo: {
+        lat: payload.lat,
+        lng: payload.lon
+      },
+      type: 'station',
+      example: JSON.stringify(example),
       updateinterval: 86400000
     }
   };
