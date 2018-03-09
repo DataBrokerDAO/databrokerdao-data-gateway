@@ -131,7 +131,7 @@ function createLuftDatenSensorListing(name, payload) {
     price: '10',
     stakeamount: '10',
     metadata: {
-      name: name,
+      name: `${payload.sensor_id} ${payload.sensor_type}`,
       sensorid: `${name}${delimiter}${payload.sensor_id}${delimiter}${payload.sensor_type}`,
       geo: {
         lat: payload.lat,

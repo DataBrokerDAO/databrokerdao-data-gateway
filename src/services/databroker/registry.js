@@ -73,9 +73,8 @@ async function enlistSensor(sensor) {
       ],
       error => {
         if (error) {
-          resolve('0x3df2fd51cf19c0d8d1861d6ebc6457a1b0c7496f');
-          // console.log(`Error while enlisting, ${error}`);
-          // reject(error);
+          console.log(`Error while enlisting, ${error}`);
+          reject(error);
         }
       }
     );
