@@ -1,16 +1,25 @@
 {
-  "name": "data-gateway",
-  "version": "1.0.0",
+  "name": "@settlemint/databrokerdao-data-gateway",
+  "version": "0.0.0-development",
   "description": "Middleware which acts as a data gateway between IoT sensor data streams and the Databroker DAO dApi",
   "main": "src/server.js",
   "scripts": {
-    "start": "nodemon src/server.js",
-    "test": "NODE_ENV=test mocha --timeout 10000 **/tests/*.spec.js"
+    "start": "node --trace-warnings src/server.js",
+    "start-debug": "node --trace-warnings --inspect=0.0.0.0:9230 --preserve-symlinks src/server.js",
+    "start-debug-break": "node --trace-warnings --inspect-brk=0.0.0.0:9230 --preserve-symlinks src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "NODE_ENV=test mocha --timeout 10000 **/tests/*.spec.js",
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/databrokerdao/databrokerdao-data-gateway.git"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^1.17.1"
+    "nodemon": "^1.17.1",
+    "semantic-release": "^15.0.2"
   },
   "dependencies": {
     "async": "^2.6.0",
@@ -29,5 +38,8 @@
     "rtrim": "^1.0.0",
     "shuffle-seed": "^1.1.6",
     "throttled-request": "^0.1.1"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }
