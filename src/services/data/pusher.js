@@ -71,39 +71,30 @@ async function pushLuftDaten(job, sourceUrl) {
 }
 
 async function pushLuftDatenSensorData(sensor, rows) {
-  let sensorID = sensor.metadata.sensorid;
-  return promiseRetry(retry => {
-    return ensureSensorIsListed(sensor).catch(retry);
-  }).then(
-    sensorID => {
-      let targetUrl = createCustomDapiEndpointUrl(sensorID);
-      return Promise.map(
-        rows,
-        row => {
-          return new Promise((resolve, reject) => {
-            throttledRequest(
-              {
-                url: targetUrl,
-                method: 'POST',
-                body: row,
-                json: true
-              },
-              (error, response) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve(response);
-                }
-              }
-            );
-          });
-        },
-        { concurrency: parseInt(process.env.CONCURRENCY, 10) }
-      );
+  await ensureSensorIsListed(sensor);
+  let targetUrl = createCustomDapiEndpointUrl(sensor.metadata.sensorid);
+  return Promise.map(
+    rows,
+    row => {
+      return new Promise((resolve, reject) => {
+        throttledRequest(
+          {
+            url: targetUrl,
+            method: 'POST',
+            body: row,
+            json: true
+          },
+          (error, response) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(response);
+            }
+          }
+        );
+      });
     },
-    error => {
-      console.log(`Could not enlist sensor ${sensorID}, ${error}`);
-    }
+    { concurrency: parseInt(process.env.CONCURRENCY, 10) }
   );
 }
 
@@ -141,27 +132,26 @@ function createCustomDapiEndpointUrl(sensorID) {
 }
 
 async function ensureSensorIsListed(sensor) {
-  let sensorID = sensor.metadata.sensorid;
-  if (typeof cache.listingCache[sensorID] !== 'undefined') {
-    return Promise.resolve();
-  }
+  return new Promise(async (resolve, reject) => {
+    let sensorID = sensor.metadata.sensorid;
+    if (typeof cache.listingCache[sensorID] !== 'undefined') {
+      return resolve();
+    }
 
-  return new Promise((resolve, reject) => {
-    store.isEnlisted(sensorID).then(isEnlisted => {
-      if (isEnlisted) {
-        return resolve();
-      }
-      registry
-        .enlistSensor(sensor)
-        .then(address => {
-          cache.listingCache[sensorID] = address;
-          resolve();
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-    resolve(sensorID);
+    let isEnlisted = await store.isEnlisted(sensorID);
+    if (isEnlisted) {
+      return resolve();
+    }
+
+    registry
+      .enlistSensor(sensor)
+      .then(address => {
+        cache.listingCache[sensorID] = address;
+        resolve();
+      })
+      .catch(error => {
+        reject(error);
+      });
   });
 }
 
