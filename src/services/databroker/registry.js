@@ -2,10 +2,13 @@ const rtrim = require('rtrim');
 const auth = require('./auth');
 const async = require('async');
 const rp = require('request-promise');
+const util = require('util');
 
 require('dotenv').config();
 
 async function enlistSensor(sensor) {
+  let sensorid = sensor.metadata.sensorid;
+  console.log(`Enlisting sensor ${sensorid}`);
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
@@ -49,8 +52,30 @@ async function enlistSensor(sensor) {
               step(new Error(error));
             });
         },
-        function stepApproveDtxAmount(authToken, spenderAddress, tokenAddress, step) {
-          approve(authToken, tokenAddress, spenderAddress, sensor.stakeamount)
+        function stepMyWallet(authToken, spenderAddress, tokenAddress, step) {
+          wallet(authToken)
+            .then(response => {
+              let ownerAddress = response.DTX.address;
+              step(null, authToken, ownerAddress, spenderAddress, tokenAddress);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepCheckDtxAllowance(authToken, ownerAddress, spenderAddress, tokenAddress, step) {
+          allowance(authToken, tokenAddress, ownerAddress, spenderAddress)
+            .then(response => {
+              let remaining = parseInt(response.remaining, 10);
+              let stake = parseInt(sensor.stakeamount, 10);
+              let amount = remaining + stake;
+              step(null, authToken, spenderAddress, tokenAddress, amount);
+            })
+            .catch(error => {
+              step(new Error(error));
+            });
+        },
+        function stepApproveDtxAmount(authToken, spenderAddress, tokenAddress, amount, step) {
+          approve(authToken, tokenAddress, spenderAddress, amount.toString())
             .then(response => {
               step(null, authToken);
             })
@@ -62,22 +87,22 @@ async function enlistSensor(sensor) {
           enlist(authToken, sensor)
             .then(response => {
               if (typeof response.events[0] === 'undefined') {
-                console.log(JSON.stringify(sensor));
-                console.log(response);
+                step(new Error('Enlist event not found'));
+              } else {
+                step(null, response.events[0].listing);
               }
-              step(null, response.events[0].listing);
             })
             .catch(error => {
               step(new Error(error));
             });
         },
         function done(address) {
+          console.log(`Successfully enlisted sensor ${sensorid} at address ${address}`);
           resolve(address);
         }
       ],
       error => {
         if (error) {
-          console.log(`Error while enlisting, ${error}`);
           reject(error);
         }
       }
@@ -85,10 +110,13 @@ async function enlistSensor(sensor) {
   });
 }
 
-async function listStreamRegistry(authToken) {
+async function ipfs(authToken, metadata) {
   return rp({
-    method: 'GET',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/list',
+    method: 'POST',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/ipfs/add/json',
+    body: {
+      data: metadata
+    },
     headers: {
       Authorization: authToken
     },
@@ -107,13 +135,34 @@ async function listDtxTokenRegistry(authToken) {
   });
 }
 
-async function ipfs(authToken, metadata) {
+async function listStreamRegistry(authToken) {
   return rp({
-    method: 'POST',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/ipfs/add/json',
-    body: {
-      data: metadata
+    method: 'GET',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/list',
+    headers: {
+      Authorization: authToken
     },
+    json: true
+  });
+}
+
+async function wallet(authToken) {
+  return rp({
+    method: 'GET',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/my-wallet',
+    headers: {
+      Authorization: authToken
+    },
+    json: true
+  });
+}
+
+async function allowance(authToken, tokenAddress, ownerAddress, spenderAddress) {
+  return rp({
+    method: 'GET',
+    uri:
+      rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+      `/dtxtoken/${tokenAddress}/allowance?owner=${ownerAddress}&spender=${spenderAddress}`,
     headers: {
       Authorization: authToken
     },

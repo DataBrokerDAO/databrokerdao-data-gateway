@@ -7,7 +7,7 @@ async function getCronJobByName(name) {
 
 async function getCronJobs() {
   let collection = await client.getCollection('cron');
-  return collection.find({ status: 'active' });
+  return await collection.find({ status: 'active' }).toArray();
 }
 
 async function updateCronJob(job) {

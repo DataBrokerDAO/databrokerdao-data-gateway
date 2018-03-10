@@ -13,9 +13,10 @@ app.use(bodyParser.json());
 function bootstrap() {
   app.listen(process.env.MIDDLEWARE_PORT, async () => {
     console.log(`Listening on port ${process.env.MIDDLEWARE_PORT}`);
-    console.log('Registering jobs...');
-    let jobs = await store.getCronJobs();
-    scheduler.registerJobs(jobs);
+    store.getCronJobs().then(jobs => {
+      console.log('Registering jobs...');
+      scheduler.registerJobs(jobs);
+    });
   });
 }
 

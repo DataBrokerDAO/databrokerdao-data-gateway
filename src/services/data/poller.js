@@ -6,6 +6,8 @@ const moment = require('moment');
 const store = require('../mongo/store');
 const lock = require('../util/lock');
 const pusher = require('../data/pusher');
+const shuffle = require('shuffle-seed');
+
 require('dotenv').config();
 
 /**
@@ -25,7 +27,7 @@ async function pollLuftDaten() {
   }
   setLock(JOB_LUFTDATEN);
 
-  let start = moment.now();
+  let syncStart = moment.now();
   let job = await store.getCronJobByName(JOB_LUFTDATEN);
   let outA = { lastKey: job.lastKey };
   let outB = {};
@@ -36,6 +38,10 @@ async function pollLuftDaten() {
       ? ['http://archive.luftdaten.info/2018-03-05/']
       : await LuftDaten.scanForArchives(job.endpoint, outA);
 
+  if (archives.length > 1) {
+    archives = archives.slice(-1);
+  }
+
   console.log(`PollLuftDaten ${archives.length} archive(s) need to be scanned`);
   let csvUrls =
     process.env.NODE_ENV === 'debug'
@@ -43,26 +49,30 @@ async function pollLuftDaten() {
       : await LuftDaten.scanArchivesForCsvs(archives, outB);
 
   console.log(`PollLuftDaten ${csvUrls.length} csv(s) need to be synced`);
-
-  // Update job data  logErrors(job, [outA, outB]);
-  job.lastKey = outA.lastKey;
-  job.lastSync = moment.now();
-  job.duration = job.lastSync - start;
+  csvUrls = shuffle.shuffle(csvUrls, 'imaseed'); // Shuffle here to make data look more randomised/interesting
 
   // Push data
   let total = csvUrls.length;
+  let start = moment.now();
   return Promise.map(
     csvUrls,
     csvUrl => {
       return pusher.pushLuftDaten(job, csvUrl).then(() => {
         total--;
         if (total % 100 === 0) {
-          console.log(`${total} csv(s) left`);
+          let end = moment.now();
+          let duration = end - start;
+          start = end;
+          console.log(`${total} csv(s) left - took ${duration} ms`);
         }
       });
     },
     { concurrency: parseInt(process.env.CONCURRENCY, 10) }
   ).then(async () => {
+    // Update job data  logErrors(job, [outA, outB]);
+    job.lastKey = outA.lastKey;
+    job.lastSync = moment.now();
+    job.duration = job.lastSync - syncStart;
     await store.updateCronJob(job);
     removeLock(JOB_LUFTDATEN);
   });
