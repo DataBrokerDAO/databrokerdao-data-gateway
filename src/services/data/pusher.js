@@ -71,8 +71,8 @@ async function pushLuftDaten(job, sourceUrl) {
 }
 
 async function pushLuftDatenSensorData(sensor, rows) {
-  await ensureSensorIsListed(sensor);
-  let targetUrl = createCustomDapiEndpointUrl(sensor.metadata.sensorid);
+  let sensorID = await ensureSensorIsListed(sensor); // Don't use sensor.metadata.sensorid here - ensure sensor mutates the metadata into an ipfs hash
+  let targetUrl = createCustomDapiEndpointUrl(sensorID);
   return Promise.map(
     rows,
     row => {
@@ -135,19 +135,19 @@ async function ensureSensorIsListed(sensor) {
   return new Promise(async (resolve, reject) => {
     let sensorID = sensor.metadata.sensorid;
     if (typeof cache.listingCache[sensorID] !== 'undefined') {
-      return resolve();
+      return resolve(sensorID);
     }
 
     let isEnlisted = await store.isEnlisted(sensorID);
     if (isEnlisted) {
-      return resolve();
+      return resolve(sensorID);
     }
 
     registry
       .enlistSensor(sensor)
       .then(address => {
         cache.listingCache[sensorID] = address;
-        resolve();
+        resolve(sensorID);
       })
       .catch(error => {
         reject(error);
