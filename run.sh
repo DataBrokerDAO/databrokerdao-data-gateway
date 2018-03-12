@@ -1,7 +1,7 @@
 #!/bin/sh
 info(){ printf '\n--\n%s\n--\n\n' "$*"; }
 
-info "Starting Mint dAPI..."
+info "Starting Databrokerdao Data Gateway..."
 
 if [ "$REMOTE_DEBUG_MODE" = "debug" ]; then
   echo "WARNING: REMOTE DEBUG is enabled (not breaking on start)."
