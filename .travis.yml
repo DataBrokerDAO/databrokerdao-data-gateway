@@ -3,9 +3,10 @@ language: node_js
 cache:
   directories:
     - node_modules
+    - ~/.npm
 
 node_js:
-  - '8'
+  - '9'
 
 before_install:
   - docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}";
@@ -18,3 +19,7 @@ after_success:
     docker build --build-arg NPM_TOKEN=${NPM_TOKEN} -t settlemint/${PROJECT_NAME}:${TRAVIS_BRANCH} -t settlemint/${PROJECT_NAME}:${TRAVIS_BRANCH}-`date +%s` .;
     docker push settlemint/${PROJECT_NAME};
     fi
+
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
