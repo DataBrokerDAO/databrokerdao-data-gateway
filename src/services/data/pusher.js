@@ -77,7 +77,6 @@ async function pushLuftDatenSensorData(sensor, rows) {
     return Promise.reject(error);
   }
 
-  return Promise.resolve();
   let targetUrl = createCustomDapiEndpointUrl(sensorID);
   return Promise.map(
     rows,
