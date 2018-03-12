@@ -31,7 +31,7 @@ function createLuftDatenSensorListing(payload) {
     }
   } else if (typeof payload.P1 !== 'undefined') {
     if (Math.round(Math.random()) === 1) {
-      type = 'PM2.5';
+      type = 'PM25';
       name = `Luftdaten PM2.5 ${payload.sensor_id}`;
       delete payload.P1;
       price = '100';
