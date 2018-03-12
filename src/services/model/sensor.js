@@ -3,9 +3,9 @@ const coords = require('../util/coords');
 const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
-  if (!coords.inLeuven(payload)) {
-    return null;
-  }
+  // if (!coords.inLeuven(payload)) {
+  //   return null;
+  // }
 
   let type;
   let name;
