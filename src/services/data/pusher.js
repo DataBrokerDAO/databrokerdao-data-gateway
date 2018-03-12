@@ -73,15 +73,22 @@ async function pushLuftDaten(job, sourceUrl) {
 
 async function pushLuftDatenSensorData(sensor, rows) {
   let sensorID;
+  let inLeuven;
 
   try {
     // Don't use sensor.metadata.sensorid here - ensure sensor mutates the metadata into an ipfs hash
+    inLeuven = sensor.inLeuven;
+    delete sensor.inLeuven;
     sensorID = await ensureSensorIsListed(sensor);
   } catch (error) {
     return Promise.reject(error);
   }
 
-  return Promise.resolve();
+  if (!inLeuven) {
+    // Only push data for sensors which are located in Leuven
+    return Promise.resolve();
+  }
+
   let targetUrl = createCustomDapiEndpointUrl(sensorID);
   return Promise.map(
     rows,

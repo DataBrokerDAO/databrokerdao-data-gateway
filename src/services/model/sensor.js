@@ -3,10 +3,6 @@ const coords = require('../util/coords');
 const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
-  // if (!coords.inLeuven(payload)) {
-  //   return null;
-  // }
-
   let type;
   let name;
   let price;
@@ -62,7 +58,8 @@ function createLuftDatenSensorListing(payload) {
       type: type,
       example: JSON.stringify(payload),
       updateinterval: 86400000
-    }
+    },
+    inLeuven: coords.inLeuven(payload)
   };
 
   if (typeof sensor.metadata.sensorid === 'undefined') {
