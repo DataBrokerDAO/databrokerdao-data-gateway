@@ -57,15 +57,20 @@ async function pollLuftDaten() {
   return Promise.map(
     csvUrls,
     csvUrl => {
-      return pusher.pushLuftDaten(job, csvUrl).then(() => {
-        total--;
-        if (total % 100 === 0) {
-          let end = moment.now();
-          let duration = end - start;
-          start = end;
-          console.log(`${total} csv(s) left - took ${duration} ms`);
-        }
-      });
+      return pusher
+        .pushLuftDaten(job, csvUrl)
+        .then(() => {
+          total--;
+          if (total % 100 === 0) {
+            let end = moment.now();
+            let duration = end - start;
+            start = end;
+            console.log(`${total} csv(s) left - took ${duration} ms`);
+          }
+        })
+        .catch(error => {
+          console.log(`Error in pushLuftDaten: ${error}`);
+        });
     },
     { concurrency: parseInt(process.env.CONCURRENCY, 10) }
   ).then(async () => {
