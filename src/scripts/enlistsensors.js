@@ -110,9 +110,17 @@ const sensorUrlList = [
 async function enlist() {
   for (let i = 0; i < sensorUrlList.length; i++) {
     let sensor = await createSensor(sensorUrlList[i]);
-    await ensureSensorIsListed(sensor);
+    let sensorID = sensor.metadata.sensorid;
+    await ensureSensorIsListed(i, sensor)
+      .then(result => {
+        console.log('OK');
+      })
+      .catch(error => {
+        console.log(`Failed to enlist ${sensorID}, ${error}`);
+      });
   }
   console.log('Done');
+  process.exit(0);
 }
 
 function createSensor(url) {
@@ -125,18 +133,23 @@ function createSensor(url) {
   });
 }
 
-async function ensureSensorIsListed(sensor) {
+async function ensureSensorIsListed(i, sensor) {
   return new Promise((resolve, reject) => {
     let sensorID = sensor.metadata.sensorid;
-    console.log(`Ensuring sensor ${sensorID} is listed`);
+    console.log(`${i + 1}) Ensuring sensor ${sensorID} is listed`);
     store.isEnlisted(sensorID).then(isEnlisted => {
       if (isEnlisted) {
-        return resolve();
+        return resolve(sensorID);
       }
 
-      registry.enlistSensor(sensor).then(sensorID => {
-        resolve(sensorID);
-      });
+      return registry
+        .enlistSensor(sensor)
+        .then(sensorID => {
+          resolve(sensorID);
+        })
+        .catch(error => {
+          reject(error);
+        });
     });
   });
 }

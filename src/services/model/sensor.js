@@ -65,6 +65,10 @@ function createLuftDatenSensorListing(payload) {
     }
   };
 
+  if (typeof sensor.metadata.sensorid === 'undefined') {
+    return null;
+  }
+
   return sensor;
 }
 

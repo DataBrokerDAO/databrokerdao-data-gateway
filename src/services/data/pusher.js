@@ -10,6 +10,7 @@ const Promise = require('bluebird');
 const cache = require('../util/cache');
 const moment = require('moment');
 const model = require('../model/sensor');
+const async = require('async');
 
 require('dotenv').config();
 const customDapiBaseUrl = process.env.DATABROKER_CUSTOM_DAPI_BASE_URL;
@@ -38,8 +39,6 @@ async function pushLuftDaten(job, sourceUrl) {
             // Note we can destory the stream here to save time - we know we're not streaming this data anyway
             stream.destroy();
             return resolve();
-          } else {
-            console.log(sourceUrl);
           }
         }
 
@@ -54,14 +53,12 @@ async function pushLuftDaten(job, sourceUrl) {
           return resolve();
         }
 
-        return pushLuftDatenSensorData(sensor, rows)
-          .then(() => {
-            resolve();
-          })
-          .catch(error => {
-            console.log(`Error while streaming ${error}`);
-            reject(error);
-          });
+        await pushLuftDatenSensorData(sensor, rows).catch(error => {
+          console.log(`Error while streaming ${error}`);
+          reject(error);
+        });
+
+        resolve();
       })
       .on('error', error => {
         console.log(`Error while streaming ${error}`);
@@ -71,7 +68,16 @@ async function pushLuftDaten(job, sourceUrl) {
 }
 
 async function pushLuftDatenSensorData(sensor, rows) {
-  let sensorID = await ensureSensorIsListed(sensor); // Don't use sensor.metadata.sensorid here - ensure sensor mutates the metadata into an ipfs hash
+  let sensorID;
+
+  try {
+    // Don't use sensor.metadata.sensorid here - ensure sensor mutates the metadata into an ipfs hash
+    sensorID = await ensureSensorIsListed(sensor);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  return Promise.resolve();
   let targetUrl = createCustomDapiEndpointUrl(sensorID);
   return Promise.map(
     rows,
