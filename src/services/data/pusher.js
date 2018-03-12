@@ -44,8 +44,12 @@ async function pushLuftDaten(job, sourceUrl) {
 
         // Note we could call the custom dapi here already with our payload, however calling it on 'end' has proven to improve the
         // Too Many Request issue we've been facing + it ensures the possibly recently enlisted sensor got a chance to sync to mongo
-        if (sensor !== null && rows.length < 100) {
+        if (sensor !== null) {
           rows.push(payload);
+        }
+
+        if (rows.length > 10) {
+          stream.destroy();
         }
       })
       .on('end', async result => {
