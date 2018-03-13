@@ -84,7 +84,7 @@ async function pushLuftDatenSensorData(sensor, rows) {
     return Promise.reject(error);
   }
 
-  if (!inLeuven) {
+  if (true || !inLeuven) {
     // Only push data for sensors which are located in Leuven
     return Promise.resolve();
   }
