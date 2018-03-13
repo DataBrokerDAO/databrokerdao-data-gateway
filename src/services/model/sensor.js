@@ -3,6 +3,10 @@ const coords = require('../util/coords');
 const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
+  if (!coords.inBenelux(payload)) {
+    return null;
+  }
+
   let type;
   let name;
   let price;

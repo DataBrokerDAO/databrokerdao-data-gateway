@@ -16,7 +16,17 @@ function inBerlin(coord) {
   return false;
 }
 
+function inBenelux(coord) {
+  if (parseFloat(coord.lat) >= 49.2 && parseFloat(coord.lat) <= 53.7) {
+    if (parseFloat(coord.lon) >= 2.2 && parseFloat(coord.lon) <= 7.5) {
+      return true;
+    }
+  }
+  return false;
+}
+
 module.exports = {
   inLeuven,
-  inBerlin
+  inBerlin,
+  inBenelux
 };
