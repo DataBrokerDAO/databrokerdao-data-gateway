@@ -110,6 +110,7 @@ const sensorUrlList = [
 async function enlist() {
   for (let i = 0; i < sensorUrlList.length; i++) {
     let sensor = await createSensor(sensorUrlList[i]);
+    delete sensor.inLeuven;
     let sensorID = sensor.metadata.sensorid;
     await ensureSensorIsListed(i, sensor)
       .then(result => {
