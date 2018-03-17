@@ -73,17 +73,20 @@ async function pollLuftDaten() {
         });
     },
     { concurrency: parseInt(process.env.CONCURRENCY, 10) }
-  ).then(async () => {
-    // Update job data  logErrors(job, [outA, outB]);
-    job.lastKey = outA.lastKey;
-    job.lastSync = moment.now();
-    job.duration = job.lastSync - syncStart;
-    await store.updateCronJob(job);
-    removeLock(JOB_LUFTDATEN);
-  });
+  )
+    .then(async () => {
+      // Update job data  logErrors(job, [outA, outB]);
+      job.lastKey = outA.lastKey;
+      job.lastSync = moment.now();
+      job.duration = job.lastSync - syncStart;
+      await store.updateCronJob(job);
+      removeLock(JOB_LUFTDATEN);
+    })
+    .catch(error => {
+      console.log(error);
+    });
 }
 
-// TODO haven't tested this yet
 async function pollCityBikeNyc() {
   if (isLocked(JOB_CITYBIKENYC)) {
     return Promise.resolve();
@@ -100,6 +103,7 @@ async function pollCityBikeNyc() {
 
   let newLastKey = Math.min(outA.lastKey, outB.lastKey);
   if (job.lastKey >= newLastKey) {
+    removeLock(JOB_CITYBIKENYC);
     return Promise.resolve();
   }
 
@@ -108,12 +112,20 @@ async function pollCityBikeNyc() {
     stationMap[stations.data.stations[i].station_id] = stations.data.stations[i];
   }
 
-  return Promise.map(statuses.data.stations, status => {
-    return pusher.pushCityBikeNyc(job, stationMap[status.station_id], status);
-  }).then(async () => {
-    await store.updateCronJob(job);
-    removeLock(JOB_CITYBIKENYC);
-  });
+  return Promise.map(
+    statuses.data.stations,
+    status => {
+      return pusher.pushCityBikeNyc(job, stationMap[status.station_id], status);
+    },
+    { concurrency: parseInt(process.env.CONCURRENCY, 10) }
+  )
+    .then(async () => {
+      await store.updateCronJob(job);
+      removeLock(JOB_CITYBIKENYC);
+    })
+    .catch(error => {
+      console.log(error);
+    });
 }
 
 function logErrors(job, logs) {

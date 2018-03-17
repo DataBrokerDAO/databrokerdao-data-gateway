@@ -4,7 +4,7 @@ const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
   if (!coords.inBenelux(payload)) {
-    return null;
+    // return null;
   }
 
   let type;
@@ -56,14 +56,13 @@ function createLuftDatenSensorListing(payload) {
       name: name,
       sensorid: `luftdaten${DELIMITER}${payload.sensor_id}${DELIMITER}${payload.sensor_type}`,
       geo: {
-        lat: payload.lat,
-        lng: payload.lon
+        type: 'Point',
+        coordinates: [parseFloat(payload.lat), parseFloat(payload.lon)]
       },
       type: type,
       example: JSON.stringify(payload),
       updateinterval: 86400000
-    },
-    inLeuven: coords.inLeuven(payload)
+    }
   };
 
   if (typeof sensor.metadata.sensorid === 'undefined') {
@@ -75,14 +74,14 @@ function createLuftDatenSensorListing(payload) {
 
 function createCityBikeNycSensorListing(name, payload, example) {
   return {
-    price: '10',
-    stakeamount: '10',
+    price: '40',
+    stakeamount: '1000',
     metadata: {
-      name: name,
+      name: `Citi Bike NYC ${payload.station_id}`,
       sensorid: `${name}${DELIMITER}${payload.station_id}${DELIMITER}station`,
       geo: {
-        lat: payload.lat,
-        lng: payload.lon
+        type: 'Point',
+        coordinates: [parseFloat(payload.lat), parseFloat(payload.lon)]
       },
       type: 'station',
       example: JSON.stringify(example),
