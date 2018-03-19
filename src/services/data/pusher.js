@@ -110,11 +110,34 @@ async function ensureSensorIsListed(sensor) {
       .enlistSensor(sensor)
       .then(address => {
         cache.listingCache[sensorID] = address;
-        resolve(sensorID);
+        ensureSensorIsSynced(sensorID).then(() => {
+          resolve(sensorID);
+        }).catch(() => {
+          resolve(sensorID);
+        })
       })
       .catch(error => {
         reject(error);
       });
+  });
+}
+
+async function ensureSensorIsSynced(sensorID) {
+  return new Promise((resolve, reject) => {
+    promiseRetry(function (retry, number) {
+        return store.isEnlisted(sensorID)
+          .then(sensor => {
+            if (!sensor) {
+              retry();
+            }
+          })
+          .catch(retry);
+    })
+    .then(function (sensor) {
+      resolve(sensor);
+    }, function (err) {
+      reject(sensor);
+    });
   });
 }
 
