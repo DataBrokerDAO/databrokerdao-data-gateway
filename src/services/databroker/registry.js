@@ -52,28 +52,6 @@ async function enlistSensor(sensor) {
               step(new Error(error));
             });
         },
-        // function stepMyWallet(authToken, spenderAddress, tokenAddress, step) {
-        //   wallet(authToken)
-        //     .then(response => {
-        //       let ownerAddress = response.DTX.address;
-        //       step(null, authToken, ownerAddress, spenderAddress, tokenAddress);
-        //     })
-        //     .catch(error => {
-        //       step(new Error(error));
-        //     });
-        // },
-        // function stepCheckDtxAllowance(authToken, ownerAddress, spenderAddress, tokenAddress, step) {
-        //   allowance(authToken, tokenAddress, ownerAddress, spenderAddress)
-        //     .then(response => {
-        //       let remaining = parseInt(response.remaining, 10);
-        //       let stake = parseInt(sensor.stakeamount, 10);
-        //       let amount = remaining + stake;
-        //       step(null, authToken, spenderAddress, tokenAddress, amount);
-        //     })
-        //     .catch(error => {
-        //       step(new Error(error));
-        //     });
-        // },
         function stepApproveDtxAmount(authToken, spenderAddress, tokenAddress, step) {
           let stakeamount = parseInt(sensor.stakeamount, 10);
           stakeamount *= 10;
