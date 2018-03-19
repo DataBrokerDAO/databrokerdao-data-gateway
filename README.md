@@ -22,4 +22,5 @@ DATAGATEWAY_PRIVATE_KEY=              [enter PK to ensure the middleware can enl
 DATABROKER_DAPI_BASE_URL=             [databroker dapi base url]
 DATABROKER_CUSTOM_DAPI_BASE_URL       [databroker custom dapi base url]
 NODE_ENV=                             [debug|production, note that cronjobs are env. dependant]
+CONCURRENCY=                          [request concurrency parameter]
 ```
