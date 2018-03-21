@@ -1,15 +1,12 @@
 {
   "name": "@settlemint/databrokerdao-data-gateway",
   "version": "0.0.0-development",
-  "description":
-    "Middleware which acts as a data gateway between IoT sensor data streams and the Databroker DAO dApi",
+  "description": "Middleware which acts as a data gateway between IoT sensor data streams and the Databroker DAO dApi",
   "main": "src/server.js",
   "scripts": {
     "start": "node --trace-warnings src/server.js",
-    "start-debug":
-      "node --trace-warnings --inspect=0.0.0.0:9230 --preserve-symlinks src/server.js",
-    "start-debug-break":
-      "node --trace-warnings --inspect-brk=0.0.0.0:9230 --preserve-symlinks src/server.js",
+    "start-debug": "node --trace-warnings --inspect=0.0.0.0:9230 --preserve-symlinks src/server.js",
+    "start-debug-break": "node --trace-warnings --inspect-brk=0.0.0.0:9230 --preserve-symlinks src/server.js",
     "dev": "nodemon src/server.js",
     "test": "exit 0",
     "semantic-release": "semantic-release"

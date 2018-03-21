@@ -127,14 +127,13 @@ async function ensureSensorIsListed(sensor) {
 async function ensureSensorIsSynced(sensorID) {
   return new Promise((resolve, reject) => {
     promiseRetry(function(retry, number) {
-      return store
-        .isEnlisted(sensorID)
-        .then(sensor => {
-          if (!sensor) {
-            retry();
-          }
-        })
-        .catch(retry);
+      return store.isEnlisted(sensorID).then(sensor => {
+        if (!sensor) {
+          retry();
+        } else {
+          resolve();
+        }
+      });
     }).then(
       () => {
         resolve();

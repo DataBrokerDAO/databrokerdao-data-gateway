@@ -57,7 +57,7 @@ function createLuftDatenSensorListing(payload) {
       sensorid: `luftdaten${DELIMITER}${payload.sensor_id}${DELIMITER}${payload.sensor_type}`,
       geo: {
         type: 'Point',
-        coordinates: [parseFloat(payload.lat), parseFloat(payload.lon)]
+        coordinates: [parseFloat(payload.lon), parseFloat(payload.lat)]
       },
       type: type,
       example: JSON.stringify(payload),
@@ -81,7 +81,7 @@ function createCityBikeNycSensorListing(name, payload, example) {
       sensorid: `${name}${DELIMITER}${payload.station_id}${DELIMITER}station`,
       geo: {
         type: 'Point',
-        coordinates: [parseFloat(payload.lat), parseFloat(payload.lon)]
+        coordinates: [parseFloat(payload.lon), parseFloat(payload.lat)]
       },
       type: 'station',
       example: JSON.stringify(example),
