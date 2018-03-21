@@ -136,10 +136,10 @@ async function ensureSensorIsSynced(sensorID) {
         })
         .catch(retry);
     }).then(
-      function(sensor) {
-        resolve(sensor);
+      () => {
+        resolve();
       },
-      function(err) {
+      err => {
         reject(err);
       }
     );
