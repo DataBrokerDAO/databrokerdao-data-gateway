@@ -41,10 +41,10 @@ async function pushLuftDaten(job, sourceUrl) {
       .on('end', async result => {
         await pushSensorData(sensor, { url: sourceUrl })
           .then(response => {
-            resolve();
+            resolve(response);
           })
-          .catch(error => {
-            reject(error);
+          .catch(err => {
+            reject(err);
           });
       })
       .on('error', error => {
@@ -72,12 +72,13 @@ async function pushSensorData(sensor, data) {
     return Promise.resolve();
   }
 
-  let sensorID;
+  let sensorID = sensor.metadata.sensorid;
+  let isEnlisted = await store.isEnlisted(sensorID).catch(err => {
+    return Promise.reject(err);
+  });
 
-  try {
-    sensorID = await ensureSensorIsListed(sensor);
-  } catch (error) {
-    return Promise.reject(error);
+  if (!isEnlisted) {
+    return Promise.resolve();
   }
 
   let customDapiEndpointUrl = createCustomDapiEndpointUrl(sensorID);
@@ -114,8 +115,8 @@ async function ensureSensorIsListed(sensor) {
           .then(() => {
             resolve(sensorID);
           })
-          .catch(() => {
-            resolve(sensorID);
+          .catch(error => {
+            reject(error);
           });
       })
       .catch(error => {
@@ -126,15 +127,18 @@ async function ensureSensorIsListed(sensor) {
 
 async function ensureSensorIsSynced(sensorID) {
   return new Promise((resolve, reject) => {
-    promiseRetry(function(retry, number) {
-      return store.isEnlisted(sensorID).then(sensor => {
-        if (!sensor) {
-          retry();
-        } else {
-          resolve();
-        }
-      });
-    }).then(
+    promiseRetry(
+      function(retry, number) {
+        return store.isEnlisted(sensorID).then(sensor => {
+          if (!sensor) {
+            retry();
+          } else {
+            resolve();
+          }
+        });
+      },
+      { retries: 3 }
+    ).then(
       () => {
         resolve();
       },

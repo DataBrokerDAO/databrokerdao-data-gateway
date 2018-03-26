@@ -4,7 +4,7 @@ const html = require('../../util/html');
 
 require('dotenv').config();
 
-async function scanForArchives(endpoint, out) {
+async function scanForArchives(endpoint, out = {}) {
   let archivesToSync = [];
   await rp(endpoint)
     .then(response => {
