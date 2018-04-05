@@ -9,49 +9,48 @@ function createLuftDatenSensorListing(payload) {
 
   let type;
   let name;
-  let price;
-  let stakeamount;
+  let priceInDtx;
+  let stakeInDtx;
 
+  // 1 DTX should be about 1 week's worth of data
+  // .5e-6 DTX should be about 1 second's worth of data
+  // 400 DTX should be an average stake amount
   if (typeof payload.pressure !== 'undefined') {
     type = 'pressure';
     name = `Luftdaten Press ${payload.sensor_id}`;
     delete payload.temperature;
     delete payload.humidity;
-    price = '80';
-    stakeamount = '3200';
+    priceInDtx = .45 * 10 ** -6;
+    stakeInDtx = 400;
   } else if (typeof payload.temperature !== 'undefined') {
     if (Math.round(Math.random()) === 1) {
       type = 'temperature';
       name = `Luftdaten Temp ${payload.sensor_id}`;
       delete payload.humidity;
-      price = '120';
-      stakeamount = '5800';
     } else {
       type = 'humidity';
       name = `Luftdaten Hum ${payload.sensor_id}`;
       delete payload.temperature;
-      price = '120';
-      stakeamount = '5800';
     }
+    priceInDtx = .55 * 10 ** -6;
+    stakeInDtx = 500;
   } else if (typeof payload.P1 !== 'undefined') {
     if (Math.round(Math.random()) === 1) {
       type = 'PM25';
       name = `Luftdaten PM2.5 ${payload.sensor_id}`;
       delete payload.P1;
-      price = '100';
-      stakeamount = '4600';
     } else {
       type = 'PM10';
       name = `Luftdaten PM10 ${payload.sensor_id}`;
       delete payload.P2;
-      price = '100';
-      stakeamount = '4600';
     }
+    priceInDtx = .5 * 10 ** -6;;
+    stakeInDtx = 450;
   }
 
   let sensor = {
-    price: price,
-    stakeamount: stakeamount,
+    price: wDTX(priceInDtx).toString(),
+    stakeamount: wDTX(stakeInDtx).toString(),
     metadata: {
       name: name,
       sensorid: `luftdaten${DELIMITER}${payload.sensor_id}${DELIMITER}${payload.sensor_type}`,
@@ -70,6 +69,10 @@ function createLuftDatenSensorListing(payload) {
   }
 
   return sensor;
+}
+
+function wDTX(dtx) {
+  return dtx * 10 ** 18;
 }
 
 function createCityBikeNycSensorListing(name, payload, example) {
