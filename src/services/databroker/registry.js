@@ -52,10 +52,20 @@ async function enlistSensor(sensor) {
               step(new Error(error));
             });
         },
-        function stepApproveDtxAmount(authToken, spenderAddress, tokenAddress, step) {
+        function stepApproveDtxAmount(
+          authToken,
+          spenderAddress,
+          tokenAddress,
+          step
+        ) {
           let stakeamount = parseInt(sensor.stakeamount, 10);
           stakeamount *= 10;
-          approve(authToken, tokenAddress, spenderAddress, stakeamount.toString())
+          approve(
+            authToken,
+            tokenAddress,
+            spenderAddress,
+            stakeamount.toString()
+          )
             .then(response => {
               step(null, authToken);
             })
@@ -77,7 +87,9 @@ async function enlistSensor(sensor) {
             });
         },
         function done(address) {
-          console.log(`Successfully enlisted sensor ${sensorid} at address ${address}`);
+          console.log(
+            `Successfully enlisted sensor ${sensorid} at address ${address}`
+          );
           resolve(address);
         }
       ],
@@ -107,7 +119,9 @@ async function ipfs(authToken, metadata) {
 async function listDtxTokenRegistry(authToken) {
   return rp({
     method: 'GET',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/dtxtokenregistry/list',
+    uri:
+      rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+      '/dtxtokenregistry/list',
     headers: {
       Authorization: authToken
     },
@@ -118,7 +132,8 @@ async function listDtxTokenRegistry(authToken) {
 async function listStreamRegistry(authToken) {
   return rp({
     method: 'GET',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/list',
+    uri:
+      rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/sensorregistry/list',
     headers: {
       Authorization: authToken
     },
@@ -137,7 +152,12 @@ async function wallet(authToken) {
   });
 }
 
-async function allowance(authToken, tokenAddress, ownerAddress, spenderAddress) {
+async function allowance(
+  authToken,
+  tokenAddress,
+  ownerAddress,
+  spenderAddress
+) {
   return rp({
     method: 'GET',
     uri:
@@ -153,7 +173,9 @@ async function allowance(authToken, tokenAddress, ownerAddress, spenderAddress) 
 async function approve(authToken, tokenAddress, spenderAddress, amount) {
   return rp({
     method: 'POST',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + `/dtxtoken/${tokenAddress}/approve`,
+    uri:
+      rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+      `/dtxtoken/${tokenAddress}/approve`,
     body: {
       spender: spenderAddress,
       value: amount
@@ -168,7 +190,9 @@ async function approve(authToken, tokenAddress, spenderAddress, amount) {
 async function enlist(authToken, sensor) {
   return rp({
     method: 'POST',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/streamregistry/enlist',
+    uri:
+      rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+      '/sensorregistry/enlist',
     body: sensor,
     headers: {
       Authorization: authToken,

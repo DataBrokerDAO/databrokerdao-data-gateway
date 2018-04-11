@@ -16,7 +16,10 @@ async function updateCronJob(job) {
 }
 
 async function isEnlisted(sensorID) {
-  let collection = await client.getCollection('streamregistry-items', client.DB_DATABROKER_DAPI);
+  let collection = await client.getCollection(
+    'sensorregistry-items',
+    client.DB_DATABROKER_DAPI
+  );
   let sensor = await collection.findOne({ sensorid: sensorID });
   return sensor !== null;
 }
