@@ -58,6 +58,48 @@ const rawDatasets = [
     name: 'Accessibility in bars in Flanders',
     category: CATEGORIES.CATEGORY_HEALTH,
     filetype: FILETYPES.FILETYPE_JSON
+  },
+  {
+    url:
+      'http://portaal-stadantwerpen.opendata.arcgis.com/datasets/df01b45b79034ba5a8f6dc',
+    name: 'Verbrandingsoven',
+    category: CATEGORIES.CATEGORY_ENVIRONMENT,
+    filetype: FILETYPES.FILETYPE_JSON
+  },
+  {
+    url:
+      'http://portaal-stadantwerpen.opendata.arcgis.com/datasets/2eb77c8aaf714b3aa7add0aef483298d_92.csv',
+    name: 'Road management',
+    category: CATEGORIES.CATEGORY_ENVIRONMENT,
+    filetype: FILETYPES.FILETYPE_CSV
+  },
+  {
+    url:
+      'http://portaal-stadantwerpen.opendata.arcgis.com/datasets/763a06ba5dad4a13bc3c88d0976a7ce3_298.geojson',
+    name: 'Accessibility of pharmacies',
+    category: CATEGORIES.CATEGORY_HEALTH,
+    filetype: FILETYPES.FILETYPE_JSON
+  },
+  {
+    url:
+      'http://opendata.visitflanders.org/accessibility/attractions/cementery_v2',
+    name: 'Accessible burial sites in Flanders',
+    category: CATEGORIES.CATEGORY_ENVIRONMENT,
+    filetype: FILETYPES.FILETYPE_CSV
+  },
+  {
+    url:
+      'http://opendata.brussels.be/explore/dataset/public-hospitals/download/?format=xls',
+    name: 'Public hospitals in Brussels',
+    category: CATEGORIES.CATEGORY_ENVIRONMENT,
+    filetype: FILETYPES.FILETYPE_XLS
+  },
+  {
+    url:
+      'http://opendata.brussels.be/explore/dataset/public-hospitals/download/?format=xls',
+    name: 'Public hospitals',
+    category: CATEGORIES.CATEGORY_ENVIRONMENT,
+    filetype: FILETYPES.FILETYPE_XLS
   }
 ];
 
