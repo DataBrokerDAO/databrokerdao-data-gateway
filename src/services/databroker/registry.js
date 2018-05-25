@@ -7,6 +7,7 @@ const util = require('util');
 require('dotenv').config();
 
 async function enlistSensor(sensor) {
+  console.log('ENLIST SENSOR');
   let sensorid = sensor.metadata.sensorid;
   console.log(`Enlisting sensor ${sensorid}`);
   return new Promise((resolve, reject) => {

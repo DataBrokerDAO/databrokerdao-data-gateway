@@ -139,6 +139,7 @@ async function ensureSensorIsListed(i, sensor) {
     let sensorID = sensor.metadata.sensorid;
     console.log(`${i + 1}) Ensuring sensor ${sensorID} is listed`);
     store.isEnlisted(sensorID).then(isEnlisted => {
+      console.log('IS ENLISTED')
       if (isEnlisted) {
         return resolve(sensorID);
       }

@@ -20,7 +20,7 @@ function createLuftDatenSensorListing(payload) {
     name = `Luftdaten Press ${payload.sensor_id}`;
     delete payload.temperature;
     delete payload.humidity;
-    priceInDtx = .45 * 10 ** -6;
+    priceInDtx = 0.45 * 10 ** -6;
     stakeInDtx = 400;
   } else if (typeof payload.temperature !== 'undefined') {
     if (Math.round(Math.random()) === 1) {
@@ -32,7 +32,7 @@ function createLuftDatenSensorListing(payload) {
       name = `Luftdaten Hum ${payload.sensor_id}`;
       delete payload.temperature;
     }
-    priceInDtx = .55 * 10 ** -6;
+    priceInDtx = 0.55 * 10 ** -6;
     stakeInDtx = 500;
   } else if (typeof payload.P1 !== 'undefined') {
     if (Math.round(Math.random()) === 1) {
@@ -44,7 +44,7 @@ function createLuftDatenSensorListing(payload) {
       name = `Luftdaten PM10 ${payload.sensor_id}`;
       delete payload.P2;
     }
-    priceInDtx = .5 * 10 ** -6;;
+    priceInDtx = 0.5 * 10 ** -6;
     stakeInDtx = 450;
   }
 
@@ -53,14 +53,17 @@ function createLuftDatenSensorListing(payload) {
     stakeamount: wDTX(stakeInDtx).toString(),
     metadata: {
       name: name,
-      sensorid: `luftdaten${DELIMITER}${payload.sensor_id}${DELIMITER}${payload.sensor_type}`,
+      sensorid: `luftdaten${DELIMITER}${payload.sensor_id}${DELIMITER}${
+        payload.sensor_type
+      }`,
       geo: {
         type: 'Point',
         coordinates: [parseFloat(payload.lon), parseFloat(payload.lat)]
       },
       type: type,
       example: JSON.stringify(payload),
-      updateinterval: 86400000
+      updateinterval: 86400000,
+      sensortype: 'STREAM'
     }
   };
 
