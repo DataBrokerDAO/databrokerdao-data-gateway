@@ -1,6 +1,5 @@
 # Data Gateway Middleware
 
-
 # Info
 
 This middleware acts as a GatewayProvider (e.g. Proximus), for demoing purposes.
