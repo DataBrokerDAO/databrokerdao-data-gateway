@@ -9,8 +9,6 @@ require('dotenv').config();
 
 app.use(responseTime());
 app.use(bodyParser.json());
-
-function bootstrap() {
   app.listen(process.env.MIDDLEWARE_PORT, async () => {
     console.log(`Listening on port ${process.env.MIDDLEWARE_PORT}`);
     store.getCronJobs().then(jobs => {

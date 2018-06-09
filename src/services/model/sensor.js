@@ -3,8 +3,13 @@ const coords = require('../util/coords');
 const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
-  if (!coords.inBenelux(payload)) {
-    // return null;
+  // Temporarily move about 1/3 of the sensors which are not located in belgium to china
+  if (!coords.inBelgium(payload)) {
+    if (Math.random() <= 0.33) {
+      const coord = coords.getRandomCoordInChina();
+      payload.lat = coord.lat;
+      payload.lon = coord.lon;
+    }
   }
 
   let type;
