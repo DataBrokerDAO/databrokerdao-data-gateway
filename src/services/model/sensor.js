@@ -25,7 +25,7 @@ function createLuftDatenSensorListing(payload) {
   // 1 DTX should be about 1 week's worth of data
   // .5e-6 DTX should be about 1 second's worth of data
   // 400 DTX should be an average stake amount
-  if (typeof payload.pressure !== 'undefined') {
+  if (false && typeof payload.pressure !== 'undefined') {
     type = 'pressure';
     name = `Luftdaten Press ${payload.sensor_id}`;
     delete payload.temperature;
@@ -56,6 +56,9 @@ function createLuftDatenSensorListing(payload) {
     }
     priceInDtx = 0.5 * 10 ** -6;
     stakeInDtx = 450;
+  } else {
+    console.log('Could not find appropriate sensor type', payload);
+    return null;
   }
 
   let sensor = {
