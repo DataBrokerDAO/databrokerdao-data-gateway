@@ -3,8 +3,18 @@ const coords = require('../util/coords');
 const DELIMITER = '!#!';
 
 function createLuftDatenSensorListing(payload) {
-  if (!coords.inBenelux(payload)) {
-    // return null;
+  // Temporarily move about 1/3 of the sensors which are not located in belgium to china
+  if (!coords.inBelgium(payload)) {
+    if (Math.random() <= 0.33) {
+      const coord = coords.getRandomCoordInChina();
+      payload.lat = coord.lat;
+      payload.lon = coord.lon;
+      console.log(`SENSOR located in china (${payload.lon},${payload.lat})`);
+    } else {
+      console.log(`SENSOR located at (${payload.lon},${payload.lat})`);
+    }
+  } else {
+    console.log(`SENSOR located in belgium (${payload.lon},${payload.lat})`);
   }
 
   let type;
@@ -15,7 +25,7 @@ function createLuftDatenSensorListing(payload) {
   // 1 DTX should be about 1 week's worth of data
   // .5e-6 DTX should be about 1 second's worth of data
   // 400 DTX should be an average stake amount
-  if (typeof payload.pressure !== 'undefined') {
+  if (false && typeof payload.pressure !== 'undefined') {
     type = 'pressure';
     name = `Luftdaten Press ${payload.sensor_id}`;
     delete payload.temperature;
@@ -46,6 +56,9 @@ function createLuftDatenSensorListing(payload) {
     }
     priceInDtx = 0.5 * 10 ** -6;
     stakeInDtx = 450;
+  } else {
+    console.log('Could not find appropriate sensor type', payload);
+    return null;
   }
 
   let sensor = {
