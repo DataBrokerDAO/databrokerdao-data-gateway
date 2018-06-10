@@ -53,10 +53,28 @@ function inBelgium(coord) {
 }
 
 function getRandomCoordInChina() {
-  const lonMin = 73.6753792663;
-  const lonMax = 135.026311477;
-  const latMin = 18.197700914;
-  const latMax = 53.4588044297;
+  // China coord bounding box
+  // Note: did not work out b/c of ocean/water
+  // const lonMin = 73.6753792663;
+  // const lonMax = 135.026311477;
+  // const latMin = 18.197700914;
+  // const latMax = 53.4588044297;
+
+  const cities = [
+    [30.975, 121.10157, 31.514999, 121.804611], // shanghai
+    [39.75872, 116.04142, 40.159191, 116.638641], // beijing
+    [30.068433, 119.026566, 30.318433, 120.326566], // hangzhou
+    [23.303307, 113.44, 23.38, 113.47], // guangzhou
+    [22.555255, 113.865732, 22.795255, 114.43] // shenzen
+    [22.2952, 114.261414, 22.194201, 114.116302] // Hong Kong
+  ]
+
+  const randomCity = cities[Math.floor(Math.random() * cities.length)];
+
+  const lonMin = randomCity[1];
+  const lonMax = randomCity[3];
+  const latMin = randomCity[0];
+  const latMax = randomCity[2];
 
   const randomLng = Math.random() * (lonMax - lonMin) + lonMin;
   const randomLat = Math.random() * (latMax - latMin) + latMin;
