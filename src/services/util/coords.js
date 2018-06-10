@@ -65,9 +65,9 @@ function getRandomCoordInChina() {
     [39.75872, 116.04142, 40.159191, 116.638641], // beijing
     [30.068433, 119.026566, 30.318433, 120.326566], // hangzhou
     [23.303307, 113.44, 23.38, 113.47], // guangzhou
-    [22.555255, 113.865732, 22.795255, 114.43] // shenzen
+    [22.555255, 113.865732, 22.795255, 114.43], // shenzen
     [22.2952, 114.261414, 22.194201, 114.116302] // Hong Kong
-  ]
+  ];
 
   const randomCity = cities[Math.floor(Math.random() * cities.length)];
 
