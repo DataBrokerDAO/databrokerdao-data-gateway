@@ -9,7 +9,12 @@ function createLuftDatenSensorListing(payload) {
       const coord = coords.getRandomCoordInChina();
       payload.lat = coord.lat;
       payload.lon = coord.lon;
+      console.log(`SENSOR located in china (${payload.lon},${payload.lat})`);
+    } else {
+      console.log(`SENSOR located at (${payload.lon},${payload.lat})`);
     }
+  } else {
+    console.log(`SENSOR located in belgium (${payload.lon},${payload.lat})`);
   }
 
   let type;
