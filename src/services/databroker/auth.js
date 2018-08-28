@@ -11,12 +11,10 @@ async function authenticate() {
     let baseUrl = rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/');
     let options = {
       method: 'POST',
-      uri: `${baseUrl}/authenticate`,
+      uri: `${baseUrl}/accounts/authenticate`,
       body: {
-        privateKeys: {
-          ethereum: process.env.DATAGATEWAY_PRIVATE_KEY
-        },
-        encrypted: false
+        username: process.env.DAPI_USERNAME,
+        password: process.env.DAPI_PASSWORD
       },
       headers: {
         'Content-Type': 'application/json',
