@@ -70,8 +70,8 @@ function createLuftDatenSensorListing(payload) {
         payload.sensor_type
       }`,
       geo: {
-        type: 'Point',
-        coordinates: [parseFloat(payload.lon), parseFloat(payload.lat)]
+        lat: parseFloat(payload.lat),
+        lng: parseFloat(payload.lon)
       },
       type: type,
       example: JSON.stringify(payload),
