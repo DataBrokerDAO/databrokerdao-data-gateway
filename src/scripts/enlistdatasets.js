@@ -124,7 +124,6 @@ async function ensureIsListed(i, dataset) {
       `${i + 1}) Ensuring dataset ${dataset.metadata.sensorid} is enlisted`
     );
     store.isEnlisted(dataset.metadata.sensorid).then(isEnlisted => {
-      console.log('IS ENLISTED');
       if (isEnlisted) {
         return resolve(dataset.metadata.sensorid);
       }

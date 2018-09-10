@@ -1,57 +1,40 @@
 const rtrim = require('rtrim');
 const auth = require('./auth');
 const async = require('async');
+const retry = require('../util/async_retry');
 const rp = require('request-promise');
 const util = require('util');
 
 require('dotenv').config();
 
 async function enlistSensor(sensor) {
-  console.log('ENLIST SENSOR');
   let sensorid = sensor.metadata.sensorid;
   console.log(`Enlisting sensor ${sensorid}`);
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
         function stepAuthenticate(step) {
-          auth
-            .authenticate()
-            .then(authToken => {
-              step(null, authToken);
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+          auth.authenticate().then(authToken => {
+            step(null, authToken);
+          });
         },
         function stepIpfsHash(authToken, step) {
-          ipfs(authToken, sensor.metadata)
-            .then(response => {
-              sensor.metadata = response[0].hash;
-              step(null, authToken);
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+          ipfs(authToken, sensor.metadata).then(response => {
+            sensor.metadata = response[0].hash;
+            step(null, authToken);
+          });
         },
         function stepListDtxTokenRegistry(authToken, step) {
-          listDtxTokenRegistry(authToken)
-            .then(response => {
-              let tokenAddress = response.items[0].contractaddress;
-              step(null, authToken, tokenAddress);
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+          listDtxTokenRegistry(authToken).then(response => {
+            let tokenAddress = response.items[0].contractAddress;
+            step(null, authToken, tokenAddress);
+          });
         },
         function stepListStreamRegistry(authToken, tokenAddress, step) {
-          listStreamRegistry(authToken)
-            .then(response => {
-              let spenderAddress = response.base.key;
-              step(null, authToken, spenderAddress, tokenAddress);
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+          listStreamRegistry(authToken).then(response => {
+            let spenderAddress = response.base.contractAddress;
+            step(null, authToken, spenderAddress, tokenAddress);
+          });
         },
         function stepApproveDtxAmount(
           authToken,
@@ -59,39 +42,39 @@ async function enlistSensor(sensor) {
           tokenAddress,
           step
         ) {
-          let stakeamount = parseInt(sensor.stakeamount, 10);
-          stakeamount *= 10;
           approve(
             authToken,
             tokenAddress,
             spenderAddress,
-            stakeamount.toString()
-          )
-            .then(response => {
-              step(null, authToken);
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+            sensor.stakeamount
+          ).then(response => {
+            step(null, authToken, tokenAddress, response.uuid);
+          });
+        },
+        function stepAwaitApproval(authToken, tokenAddress, uuid, step) {
+          const url =
+            rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+            `/dtxtoken/${tokenAddress}/approve/${uuid}`;
+          waitFor(authToken, url).then(response => {
+            step(null, authToken);
+          });
         },
         function stepEnlistSensor(authToken, step) {
-          enlist(authToken, sensor)
-            .then(response => {
-              if (typeof response.events[0] === 'undefined') {
-                step(new Error('Enlist event not found'));
-              } else {
-                step(null, response.events[0].listing);
-              }
-            })
-            .catch(error => {
-              step(new Error(error));
-            });
+          enlist(authToken, sensor).then(response => {
+            step(null, authToken, response.uuid);
+          });
         },
-        function done(address) {
-          console.log(
-            `Successfully enlisted sensor ${sensorid} at address ${address}`
-          );
-          resolve(address);
+        function stepAwaitEnlisting(authToken, uuid, step) {
+          const url =
+            rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
+            `/sensorregistry/enlist/${uuid}`;
+          waitFor(authToken, url).then(response => {
+            step(null);
+          });
+        },
+        function done() {
+          console.log(`Successfully enlisted sensor ${sensorid}`);
+          resolve(sensorid);
         }
       ],
       error => {
@@ -145,7 +128,7 @@ async function listStreamRegistry(authToken) {
 async function wallet(authToken) {
   return rp({
     method: 'GET',
-    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/my-wallet',
+    uri: rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') + '/wallet',
     headers: {
       Authorization: authToken
     },
@@ -178,8 +161,8 @@ async function approve(authToken, tokenAddress, spenderAddress, amount) {
       rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
       `/dtxtoken/${tokenAddress}/approve`,
     body: {
-      spender: spenderAddress,
-      value: amount
+      _spender: spenderAddress,
+      _value: amount
     },
     headers: {
       Authorization: authToken
@@ -194,13 +177,50 @@ async function enlist(authToken, sensor) {
     uri:
       rtrim(process.env.DATABROKER_DAPI_BASE_URL, '/') +
       '/sensorregistry/enlist',
-    body: sensor,
+    body: {
+      _metadata: sensor.metadata,
+      _stakeAmount: sensor.stakeamount,
+      _price: sensor.price
+    },
     headers: {
       Authorization: authToken,
       'Content-Type': 'application/json'
     },
     json: true
   });
+}
+
+async function waitFor(authToken, url) {
+  return await retry(
+    async bail => {
+      console.log(`Waiting for ${url}`);
+      const res = await rp({
+        method: 'GET',
+        uri: url,
+        headers: { Authorization: authToken }
+      }).catch(error => {
+        bail(error);
+      });
+
+      const response = JSON.parse(res);
+      if (!(response && response.receipt)) {
+        throw new Error('Tx not mined yet');
+      }
+
+      if (response.receipt.status === 0) {
+        bail(new Error(`Tx with hash ${response.hash} was reverted`));
+        return;
+      }
+
+      return response.receipt;
+    },
+    {
+      factor: 2,
+      minTimeout: 1000,
+      maxTimeout: 5000, // ms
+      retries: 120
+    }
+  );
 }
 
 module.exports = {
