@@ -14,13 +14,14 @@ export async function getSensors() {
 export async function parseLuftdaten(sensorData: any) {
     try {
     let count = 0;
-    sensorData.data.forEach((sensor: object, index: number) => {
+    for(let index = 0; index < sensorData.data.length; index++) {
+        let sensor = sensorData.data[index];
         if (index < 10) {
             console.log(sensor);
         }
-        count++;
-    });
-    console.log('There are currently '  + count + ' sensors active');
+    }
+    
+    console.log('There are currently '  + sensorData.data.length + ' sensors active');
     } catch (error) {
         console.error(error);
     }

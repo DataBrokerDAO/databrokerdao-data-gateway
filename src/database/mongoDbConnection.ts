@@ -39,14 +39,13 @@ export function compareSensors(sensorData: any) {
             let newSensorArray= [];
             col.find().toArray()
             .then((result) => { 
-                sensorData.data.forEach((sensor:any, index: number) => {
-                    result.forEach(dbSensor => {
-                        if(dbSensor)
-                    });
-                    console.log(sensor);
-                    let newSensor = new DatabaseSensor(sensor.id, sensor);
-                });
-                //console.log(result);
+                for (let index = 0; index < sensorData.data.length; index++) {
+                    let sensor = sensorData.data[index]
+                    
+                    for (let dbIndex = 0; dbIndex < result.length; dbIndex++) {
+                        let dbSensor = result[dbIndex];
+                    }
+                }
                 client.close();
             });
         
@@ -66,15 +65,11 @@ function initializeDatabase (sensorData: any) {
                 console.log('Database appears to be empty, attempting to fill');
                 MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
                     let newSensorArray: DatabaseSensor[] = [];
-                    
-                    sensorData.data.forEach((sensor: any, index: number) => {
-                        //if(index < 10) {
-                            let newSensor = new DatabaseSensor(sensor.sensor.id, sensor.sensor.sensor_type.name, sensor.location.latitude, sensor.location.longitude);
+                    for (let index = 0; index < sensorData.data.length; index++) {
+                        let sensor = sensorData.data[index]
+                        let newSensor = new DatabaseSensor(sensor.sensor.id, sensor.sensor.sensor_type.name, sensor.location.latitude, sensor.location.longitude);
                             newSensorArray.push(newSensor);
-                            //console.log(sensor);
-                        //}
-                    });
-                    console.log(newSensorArray.length);
+                    }
     
                     col.insertMany(newSensorArray);
     
