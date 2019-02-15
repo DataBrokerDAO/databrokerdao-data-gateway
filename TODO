@@ -1,0 +1,1 @@
+REQ: in all these files, old and new there's terrible usage of async awaits. `.then` and `.catch` should _all_ be refactored and use proper awaits unless you have a very good reason not to
