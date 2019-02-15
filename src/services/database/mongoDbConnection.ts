@@ -2,8 +2,7 @@ import {
     MongoClient
 } from 'mongodb';
 import {
-    DatabaseSensor,
-    IDatabaseSensor
+    Sensor
 } from '../model/databaseSensor';
 import * as luftdaten from '../datasets/luftdaten';
 
@@ -84,10 +83,11 @@ function initializeDatabase(sensorData: any) {
                     console.log('Database appears to be empty, attempting to fill');
                     // TODO: extract connection logic
                     MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
+                        //TODO: fix import
                         let newSensorArray: IDatabaseSensor[] = [];
                         for (let index = 0; index < sensorData.data.length; index++) {
                             let sensor = sensorData.data[index]
-                            let newSensor = new DatabaseSensor(sensor.sensor.id, false);
+                            let newSensor = new Sensor(sensor.sensor.id, false);
                             newSensorArray.push(newSensor);
                         }
 

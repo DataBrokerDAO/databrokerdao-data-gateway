@@ -18,6 +18,7 @@ import {
     promises
 } from "fs";
 
+//TODO: Improve this code to make it more readable
 require("dotenv").config();
 
 const baseUrl: string = rtrim(

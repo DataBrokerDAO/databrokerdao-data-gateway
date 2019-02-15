@@ -7,10 +7,6 @@ import {
 
 require('dotenv').load();
 
-const globalAny: any = global;
-//TODO: 
-globalAny.databaseIsInititialized = false;
-globalAny.sensorData = [];
 
 const app = express();
 //TODO:  Fix process.env
@@ -41,5 +37,7 @@ function bootstrap() {
 }
 console.log('Hi!');
 console.log('Running sensor enlisting script');
-enlistSensors.enlistSensor(tempSensor);
+//DO NOT ENABLE DTX WILL BE SPEND!!!!!!!!!!!!!
+//enlistSensors.enlistSensor(tempSensor);
+//DO NOT ENABLE DTX WILL BE SPEND!!!!!!!!!!!!!
 bootstrap();
