@@ -1,4 +1,4 @@
-export interface ILuftdatenSensor {
+export interface ILuftDatenSensorResource {
         id: number,
         sampling_rate: unknown,
         timestamp: string,
@@ -16,7 +16,7 @@ export interface ILuftdatenSensor {
             manufacturer: string
           }
         };
-        sensordatavalues: sensordatavalue[];
+        sensordatavalues: ISensordatavalue[];
 }
 
 export interface ISensordatavalue {
