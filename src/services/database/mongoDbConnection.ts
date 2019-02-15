@@ -1,9 +1,18 @@
-import {DatabaseSensor} from '../model/databaseSensor';
 import {MongoClient} from 'mongodb';
+import {DatabaseSensor, IDatabaseSensor} from '../model/databaseSensor';
+import * as luftdaten from '../datasets/luftdaten'
 
 const globalAny:any = global;
 
-export function accessDb() {
+export async function updateDbSensors () {
+    const sensorData = await luftdaten.getSensors();
+    if (sensorData != null || sensorData !== undefined) {
+        globalAny.sensorData = sensorData;
+    }
+    await compareSensors(sensorData);
+}  
+
+export function accessDb() {  
 
 // Connect using MongoClient
 MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
@@ -32,11 +41,12 @@ export function compareSensors(sensorData: any) {
         initializeDatabase(sensorData);
 
     } else {
-    // Connect using MongoClient
+        try {
+        // Connect using MongoClient
         MongoClient.connect(process.env.MONGO_DB_URL , (err, client) => {
             // Create a collection we want to drop later
             const col = client.db(process.env.MONGO_DB_NAME).collection(process.env.MONGO_DB_SENSOR_COLLECTION);
-            let newSensorArray= [];
+            let newSensorArray: IDatabaseSensor[] = [];
             col.find().toArray()
             .then((result) => { 
                 for (let index = 0; index < sensorData.data.length; index++) {
@@ -51,7 +61,11 @@ export function compareSensors(sensorData: any) {
         
           });
         
+        } catch (error) {
+            console.error(error);
         }
+          
+    }
 
 }
 
@@ -64,10 +78,10 @@ function initializeDatabase (sensorData: any) {
             if (result < 1) {
                 console.log('Database appears to be empty, attempting to fill');
                 MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
-                    let newSensorArray: DatabaseSensor[] = [];
+                    let newSensorArray: IDatabaseSensor[] = [];
                     for (let index = 0; index < sensorData.data.length; index++) {
                         let sensor = sensorData.data[index]
-                        let newSensor = new DatabaseSensor(sensor.sensor.id, sensor.sensor.sensor_type.name, sensor.location.latitude, sensor.location.longitude);
+                        let newSensor = new DatabaseSensor(sensor.sensor.id, false);
                             newSensorArray.push(newSensor);
                     }
     
@@ -80,9 +94,4 @@ function initializeDatabase (sensorData: any) {
             
         });
     });
-}
-
-module.exports = {
-    accessDb,
-    compareSensors
 }

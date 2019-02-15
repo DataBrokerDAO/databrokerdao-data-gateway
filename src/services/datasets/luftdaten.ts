@@ -26,8 +26,3 @@ export async function parseLuftdaten(sensorData: any) {
         console.error(error);
     }
 }
-
-module.exports = {
-    getSensors,
-    parseLuftdaten
-}
