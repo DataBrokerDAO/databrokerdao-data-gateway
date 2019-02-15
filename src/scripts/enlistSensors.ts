@@ -3,11 +3,10 @@
 // const registry = require('../services/databroker/registry');
 import async from "async";
 import * as auth from "../services/databroker/auth";
-const retry = require('../services/util/async_retry');
-//import * as retry from '../services/util/async_retry';
+import * as retry from 'async-retry';
 import * as rp from "request-promise";
-//import rtrim from 'rtrim';
-const rtrim = require("rtrim");
+import * as rtrim from 'rtrim';
+// rtrim = require("rtrim");
 import axios, { AxiosRequestConfig, AxiosPromise } from "axios";
 import { EventListeners } from "aws-sdk";
 import { promises } from "fs";

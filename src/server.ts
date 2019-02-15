@@ -31,19 +31,10 @@ var tempSensor: ISensor = {
   }
 }
 
-//console.log(process.env);
-
 function bootstrap() {
   setTimeout(bootstrap, 1000 * intervalTimeInSeconds);
   console.log('Hi again!');
   mongoDbConnection.updateDbSensors();
-  // app.listen(port, async () => {
-  //   console.log(`Listening on port ${port}`);
-  //   // store.getCronJobs().then(jobs => {
-  //   //   console.log('Registering jobs...');
-  //   //   scheduler.registerJobs(jobs);
-  //   // });
-  // });
 }
 console.log('Hi!');
 console.log('Running sensor enlisting script');
