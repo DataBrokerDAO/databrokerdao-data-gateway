@@ -5,7 +5,7 @@ import {
     DatabaseSensor,
     IDatabaseSensor
 } from '../model/databaseSensor';
-import * as luftdaten from '../datasets/luftdaten'
+import * as luftdaten from '../datasets/luftdaten';
 
 const globalAny: any = global;
 
