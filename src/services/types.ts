@@ -30,7 +30,7 @@ export interface ISensor {
     stakeamount: string,
     metadata: {
       name: string,
-      sensorid: string,
+      sensorid: number,
       geo: {
         lat: number,
         lng: number
