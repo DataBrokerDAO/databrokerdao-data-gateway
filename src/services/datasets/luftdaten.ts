@@ -10,6 +10,6 @@ export async function getSensors() {
         return sensorData;
 
     } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch Sensor data from Luftdaten", error);
     }
 }

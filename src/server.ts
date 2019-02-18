@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as mongoDbConnection from './services/database/mongoDbConnection'
-import * as enlistSensors from './scripts/enlistSensors';
+import * as enlistSensors from './scripts/enlist';
 import {
   ISensor
 } from './services/model/sensor';
@@ -32,12 +32,7 @@ metadata: {
 
 function bootstrap() {
   setTimeout(bootstrap, 1000 * intervalTimeInSeconds);
-  console.log('Hi again!');
-  mongoDbConnection.updateDbSensors();
+  // TODO: probably unnessqry
+  //mongoDbConnection.updateDbSensors();
 }
-console.log('Hi!');
-console.log('Running sensor enlisting script');
-//DO NOT ENABLE DTX WILL BE SPEND!!!!!!!!!!!!!
-//enlistSensors.enlistSensor(tempSensor);
-//DO NOT ENABLE DTX WILL BE SPEND!!!!!!!!!!!!!
 bootstrap();
