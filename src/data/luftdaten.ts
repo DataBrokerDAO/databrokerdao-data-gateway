@@ -16,15 +16,15 @@ const STAKEAMOUNT = 50;
 
 //TODO: add return type 
 export async function getSensors() {
-        try {
-            console.log('Trying to fetch sensor data from Luftdaten');
-            const sensorData = axios(lufdatenApiUrl);
-            console.log('Data succesfully fetched from Luftdaten');
-            return sensorData;
-    
-        } catch (error) {
-            console.error('Failed to fetch Sensor data from Luftdaten', error);
-        }
+    try {
+        console.log('Trying to fetch sensor data from Luftdaten');
+        const sensorData = axios(lufdatenApiUrl);
+        console.log('Data succesfully fetched from Luftdaten');
+        return sensorData;
+
+    } catch (error) {
+        console.error('Failed to fetch Sensor data from Luftdaten', error);
+    }
 }
 
 export async function parseSensorData(sensorData: ILuftDatenSensorResource[]) {

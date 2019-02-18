@@ -1,5 +1,5 @@
 import async from 'async';
-import * as auth from './auth';
+import * as auth from './databroker/auth';
 import * as retry from 'async-retry';
 import * as rp from "request-promise";
 import {
@@ -8,7 +8,9 @@ import {
 import {
     promises
 } from "fs";
+import { enlistSensor } from './util/api';
 import * as rtrim from 'rtrim';
+
 
 require('dotenv').load();
 
@@ -20,27 +22,7 @@ const baseUrl: string = rtrim(
 
 //TODO: possibility for dictionary and array?
 export async function enlistSensors(sensorDict) {
-    console.log('Attempting to Enlist multiple sensors');
-    try{
-        for (const sensorKey of Object.keys(sensorDict)) {
-            
-            const sensor = sensorDict[sensorKey];
     
-            try {
-                console.log(`Enlisting sensor with ID ${sensorKey}`)
-                await enlistSensor(sensor);
-                console.log(`Succesfully enlisted sensor with ID ${sensorKey}`);
-            } catch(error) {
-                console.error(`Failed to enlist sensor with ID ${sensorKey}`, error);
-            }
-            
-            //TODO: Remove this after testing
-            break;
-        }
-    }catch(error) {
-        console.error('Failed to enlisten sensors', error);
-    }
-    console.log('Succesfully enlisted all sensors');
 }
 
 export async function enlistSensor(sensor) {
@@ -83,6 +65,7 @@ export async function enlistSensor(sensor) {
                     tokenAddress,
                     step
                 ) {
+                    console.log(`Approving spender ${spenderAddress}, on token ${tokenAddress} for amount ${sensor.stakeamount}`);
                     approve(
                         authToken,
                         tokenAddress,
@@ -91,6 +74,8 @@ export async function enlistSensor(sensor) {
                     ).then(response => {
                         console.log('Step stepApproveDtxAmount succesfull, response was: ', response);
                         step(null, authToken, tokenAddress, response.uuid);
+                    }).catch(error => {
+                        console.log('TIS IER WI')
                     });
                 },
                 function stepAwaitApproval(authToken, tokenAddress, uuid, step) {

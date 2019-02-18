@@ -1,24 +1,17 @@
 // const model = require('../services/model/sensor');
 // const store = require('../services/mongo/store');
 // const registry = require('../services/databroker/registry');
-import * as lufdaten from '../services/datasets/luftdaten';
-import * as rtrim from 'rtrim';
+
 import axios, {
     AxiosRequestConfig,
     AxiosPromise
 } from "axios";
 import { get } from "lodash";
-import { ILuftDatenSensorResource } from '../services/types';
-import { transformLuftdatenSensorDictToSensors } from '../services/datasets/luftdaten';
-import * as enlisten from '../services/databroker/enlisten';
+import { ILuftDatenSensorResource } from '../types';
+import { enlistSensor } from '../util/api';
 
 //TODO: Improve this code to make it more readable
 require("dotenv").config();
-
-const baseUrl: string = rtrim(
-    process.env.DATABROKER_DAPI_BASE_URL || "https://dapi.databrokerdao.com/",
-    "/"
-);
 
 const DELIMITER = '!##!';
 
@@ -34,7 +27,7 @@ async function enlistSensors () {
     const sensorDict = lufdaten.transformrawSensorDictToSensorsDict (rawSensorDict);
 
     // List the sensors to databrokerdao
-    await enlisten.enlistSensors(sensorDict);
+    await enlistSensor(sensors);
 }
 
 // Pseudo code

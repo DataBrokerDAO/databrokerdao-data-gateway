@@ -1,6 +1,6 @@
 import * as express from 'express';
-import * as mongoDbConnection from './services/database/mongoDbConnection'
-import * as enlistSensors from './scripts/enlist';
+import * as mongoDbConnection from './services/mongodb'
+import * as enlistSensors from './scripts/enlistluftdatensensors';
 import {
   ISensor
 } from './services/model/sensor';
