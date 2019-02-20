@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build-ts": "tsc --declaration && cp -r src/cryptoseal/assets dist/cryptoseal",
+    "build-ts": "tsc --declaration",
     "watch": "tsc -w --declaration",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "pretest": "npm run tslint",

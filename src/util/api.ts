@@ -26,15 +26,14 @@ export async function enlistSensor(sensor: ISensorEnlist) {
 
   // Request approval response for dtx tokens
   await waitFor(authToken, dtxTokenAddress, approveDtxAmountResponseUuid);
-
-  // TODO: Re-enable on release
-  // // Request sensor enlisting
-  // const sensorEnlistResponseUuid = await requestEnlistSensor(
-  //   authToken,
-  //   ipfsResponseHash,
-  //   sensor.stakeamount,
-  //   sensor.price
-  // );
+  return;
+  // Request sensor enlisting
+  const sensorEnlistResponseUuid = await requestEnlistSensor(
+    authToken,
+    ipfsResponseHash,
+    sensor.stakeamount,
+    sensor.price
+  );
 
   // // Request sensor enlisting response
   // await waitForEnlistSensor(authToken, sensorEnlistResponseUuid);

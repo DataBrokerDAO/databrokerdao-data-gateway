@@ -10,25 +10,29 @@ const STAKEAMOUNT = 0;
 
 export function transformLuftdatenSensor(
   sensor: IRawLuftDatenSensor
-): ISensorEnlist {
-  return {
-    price: Math.floor(
-      generatePriceInDTX(calculateRandom()) / 100000
-    ).toString(),
-    stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
-    metadata: {
-      name: generateName(sensor),
-      sensorid: generateSensorId(sensor),
-      geo: {
-        lat: parseFloat(sensor.location.latitude),
-        lng: parseFloat(sensor.location.latitude)
-      },
-      type: generateType(sensor),
-      example: sensor.sensordatavalues[0].value.toString(),
-      updateinterval: 86400000, // in ms
-      sensortype: SENSORTYPE_STREAM
-    }
-  };
+): ISensorEnlist|null {
+  let transformed = null;
+  try {
+    transformed = {
+      price: Math.floor(generatePriceInDTX(calculateRandom()) / 100000).toString(),
+      stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
+      metadata: {
+        name: generateName(sensor),
+        sensorid: generateSensorId(sensor),
+        geo: {
+          lat: parseFloat(sensor.location.latitude),
+          lng: parseFloat(sensor.location.latitude)
+        },
+        type: generateType(sensor),
+        example: JSON.stringify(sensor.sensordatavalues[0]),
+        updateinterval: 86400000, // in ms
+        sensortype: SENSORTYPE_STREAM
+      }
+    };
+  } catch (error) {
+
+  }
+  return transformed;
 }
 
 function generateName(sensor: IRawLuftDatenSensor) {
@@ -40,7 +44,7 @@ function generateName(sensor: IRawLuftDatenSensor) {
     PM25: 'PM2.5'
   };
 
-  return `Luftdaten ${typeToKey[type]} ${sensor.sensor.id}`;
+  return `Luftdaten ${typeToKey[type]} #${sensor.sensor.id}`;
 }
 
 function generateType(sensor: IRawLuftDatenSensor) {
@@ -58,6 +62,8 @@ function generateType(sensor: IRawLuftDatenSensor) {
     case 'P2':
       type = 'PM25';
       break;
+    default:
+      throw new Error(`Unknown type ${sensor.sensordatavalues[0].value_type}`);
   }
   return type;
 }
