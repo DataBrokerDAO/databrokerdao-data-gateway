@@ -1,11 +1,11 @@
-export interface ILuftDatenSensorResource {
+export interface IRawLuftDatenSensor {
   id: number;
   sampling_rate: unknown;
   timestamp: string;
   location: {
     id: number;
-    latitude: number;
-    longitude: number;
+    latitude: string;
+    longitude: string;
   };
   sensor: {
     id: number;

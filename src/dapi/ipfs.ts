@@ -3,9 +3,6 @@ import { DAPI_BASE_URL } from '../config/dapi-config';
 
 export async function ipfs(authToken: string, metadata: object) {
   try {
-    console.log(
-      'Attempting to add sensor metadata to databrokerdao ipfs storage'
-    );
     const response = await rp({
       method: 'POST',
       uri: `${DAPI_BASE_URL}/ipfs/add/json`,
@@ -13,9 +10,6 @@ export async function ipfs(authToken: string, metadata: object) {
       headers: { Authorization: authToken },
       json: true
     });
-    console.log(
-      'Succesfully added sensor metadata to databrokerdao ipfs storage!'
-    );
     return response[0].hash;
   } catch (error) {
     console.error(

@@ -1,61 +1,17 @@
 import axios from 'axios';
-import { ILuftDatenSensorResource } from '../types';
-import { buildDatabaseDelimiterKey } from '../util/delimit';
+import { IRawLuftDatenSensor } from '../types';
+import { LUFTDATEN_API_URL } from '../config/dapi-config';
 
-const lufdatenApiUrl = 'http://api.luftdaten.info/static/v2/data.json';
+export async function getLuftdatenSensors(): Promise<IRawLuftDatenSensor[]> {
+  let luftDatenSensors = [];
 
-const DATAORIGIN = 'LUFTDATEN';
-
-// TODO: add return type
-export async function getLuftdatenSensors() {
   try {
-    console.log('Trying to fetch sensor data from Luftdaten');
-    const sensorData = axios(lufdatenApiUrl);
-    console.log('Data succesfully fetched from Luftdaten');
-    return sensorData;
+    console.log('Fetch LuftDaten sensor data');
+    const sensorData = await axios(LUFTDATEN_API_URL);
+    luftDatenSensors = sensorData.data;
   } catch (error) {
     console.error('Failed to fetch Sensor data from Luftdaten', error);
   }
-}
 
-export async function parseLuftdatenSensorData(
-  sensorData: ILuftDatenSensorResource[]
-) {
-  try {
-    console.log('Trying to parse sensorData');
-    // TODO: make this more clean
-    const rawSensorDict: {
-      string?: ILuftDatenSensorResource;
-    } = {};
-    const sensorTypes = {};
-    for (const rawSensor of sensorData) {
-      for (const sensorParameter of rawSensor.sensordatavalues) {
-        if (
-          sensorTypes[sensorParameter.value_type] === undefined ||
-          sensorTypes[sensorParameter.value_type] === null
-        ) {
-          sensorTypes[sensorParameter.value_type] = 1;
-        } else {
-          sensorTypes[sensorParameter.value_type]++;
-        }
-      }
-      const rawSensorKey = buildDatabaseDelimiterKey(
-        DATAORIGIN,
-        rawSensor.sensor.id,
-        rawSensor.sensor.sensor_type.name
-      );
-      rawSensorDict[rawSensorKey] = rawSensor;
-    }
-
-    for (const parameterKey of Object.keys(sensorTypes)) {
-      console.log(
-        `There are ${sensorTypes[parameterKey]} ${parameterKey} sensors`
-      );
-    }
-
-    console.log('Succesfully parsed sensorData');
-    return rawSensorDict;
-  } catch (error) {
-    console.error('Failed to parse sensor data!', error);
-  }
+  return luftDatenSensors;
 }
