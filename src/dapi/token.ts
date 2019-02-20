@@ -5,12 +5,9 @@ export async function requestDtxAmountApproval(
   authToken: string,
   tokenAddress: string,
   spenderAddress: string,
-  amount: number
+  amount: string
 ) {
   try {
-    console.log(
-      `Attempting to request approval for ${amount} dtx tokens from tokenAddress ${tokenAddress} with tokens from ${spenderAddress}`
-    );
     const response = await rp({
       method: 'POST',
       uri: DAPI_BASE_URL + `/dtxtoken/${tokenAddress}/approve`,
@@ -23,7 +20,6 @@ export async function requestDtxAmountApproval(
       },
       json: true
     });
-    console.log(`Succesfully requested approval for ${amount} dtx tokens!`);
     return response.uuid;
   } catch (error) {
     console.error(

@@ -31,8 +31,8 @@ export interface ISensor {
 }
 
 export interface ISensorEnlist {
-  price: number;
-  stakeamount: number;
+  price: string;
+  stakeamount: string;
   metadata: {
     name: string;
     sensorid: string;

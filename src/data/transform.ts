@@ -12,8 +12,8 @@ export function transformLuftdatenSensor(
   sensor: IRawLuftDatenSensor
 ): ISensorEnlist {
   return {
-    price: Math.floor(generatePriceInDTX(calculateRandom()) / 100000),
-    stakeamount: generatePriceInDTX(STAKEAMOUNT),
+    price: Math.floor(generatePriceInDTX(calculateRandom()) / 100000).toString(),
+    stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
     metadata: {
       name: generateName(sensor),
       sensorid: generateSensorId(sensor),

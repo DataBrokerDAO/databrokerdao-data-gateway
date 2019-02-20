@@ -9,7 +9,6 @@ export async function waitFor(
   approveDtxAmountResponseUuid: string
 ) {
   try {
-    console.log('Requesting approval response for requested dtx tokens');
     const url =
       rtrim(DAPI_BASE_URL, '/') +
       `/dtxtoken/${tokenAddress}/approve/${approveDtxAmountResponseUuid}`;
@@ -45,7 +44,6 @@ export async function waitFor(
         retries: 120
       }
     );
-    console.log('Dtx tokens succesfully approved!');
   } catch (error) {
     console.error('Dtx tokens approval failed with error', error);
     throw error;

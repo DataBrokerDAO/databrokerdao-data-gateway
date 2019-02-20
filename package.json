@@ -35,7 +35,6 @@
   ],
   "homepage": "https://github.com/settlemint/mint-dapi",
   "dependencies": {
-    "@newrelic/native-metrics": "^4.1.0",
     "@sendgrid/mail": "^6.3.1",
     "@settlemint/certimint-validate": "^1.0.2",
     "@settlemint/good-console": "^7.2.3",
@@ -171,8 +170,6 @@
     "prettier": "^1.16.4",
     "semantic-release": "^15.13.3",
     "semantic-release-docker": "^2.1.0",
-    "shot": "^4.0.7",
-    "sleep": "^6.0.0",
     "travis-deploy-once": "^5.0.11",
     "ts-jest": "^23.10.5",
     "ts-node": "^8.0.2",

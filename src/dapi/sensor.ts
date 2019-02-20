@@ -4,17 +4,18 @@ import { ISensorEnlist } from '../types';
 
 export async function requestEnlistSensor(
   authToken: string,
-  sensor: ISensorEnlist
+  metadata: string,
+  stakeAmount: string,
+  price: string
 ) {
   try {
-    console.log(`Requesting sensor enlisting for sensor`);
     const response = await rp({
       method: 'POST',
-      uri: DAPI_BASE_URL + 'sensorregistry/enlist',
+      uri: DAPI_BASE_URL + '/sensorregistry/enlist',
       body: {
-        _metadata: sensor.metadata,
-        _stakeAmount: sensor.stakeamount,
-        _price: sensor.price
+        _metadata: metadata,
+        _stakeAmount: stakeAmount,
+        _price: price
       },
       headers: {
         Authorization: authToken,
@@ -22,7 +23,6 @@ export async function requestEnlistSensor(
       },
       json: true
     });
-    console.log('Succesfully requested sensor enlisting!');
     return response.uuid;
   } catch (error) {
     console.error('Failed to request sensor enlisting with error', error);
