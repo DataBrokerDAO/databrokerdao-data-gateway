@@ -1,7 +1,10 @@
 import { authenticate } from '../dapi/auth';
-import { ILuftDatenSensorResource, ISensorEnlist } from '../types';
+import { ISensorEnlist } from '../types';
 import { ipfs } from '../dapi/ipfs';
-import { listDtxTokenRegistry } from '../dapi/registries';
+import { listDtxTokenRegistry, listStreamRegistry } from '../dapi/registries';
+import { requestDtxAmountApproval } from '../dapi/token';
+import { waitFor } from './async';
+import { requestEnlistSensor, waitForEnlistSensor } from '../dapi/sensor';
 
 export async function enlistSensors(sensors: ISensorEnlist[]) {
   console.log('Attempting to Enlist multiple sensors');
@@ -30,15 +33,29 @@ export async function enlistSensor(sensor: ISensorEnlist) {
   const authToken = await authenticate();
 
   // Post to ipfs
-  await ipfs(authToken, sensor.metadata);
+  const ipfsResponseHash = await ipfs(authToken, sensor.metadata);
+  sensor.metadata = ipfsResponseHash;
 
   // List dtxtokenregistry
-  await listDtxTokenRegistry(authToken);
-  // await dapi.fetchDTXTokenRegistry();
-  // await dapi.fetchStreamRegistry();
-}
+  const tokenAddress = await listDtxTokenRegistry(authToken);
 
-export function ikDoeIetsAnders() {
-  // await dapi.auth()
-  // await dapi.fetchDTXTokenRegistry();
+  // List streamregistry
+  const spenderAddress = await listStreamRegistry(authToken, tokenAddress);
+
+  // Approve dtx amount
+  const approveDtxAmountResponseUuid = await requestDtxAmountApproval(
+    authToken,
+    spenderAddress,
+    tokenAddress,
+    sensor.stakeamount
+  );
+
+  // Request approval response for dtx tokens
+  await waitFor(authToken, tokenAddress, approveDtxAmountResponseUuid);
+
+  // Request sensor enlisting
+  const sensorEnlistResponseUuid = await requestEnlistSensor(authToken, sensor);
+
+  // Request sensor enlisting response
+  await waitForEnlistSensor(authToken, sensorEnlistResponseUuid);
 }

@@ -5,7 +5,7 @@ import * as retry from 'async-retry';
 import * as rp from 'request-promise';
 import { EventListeners } from 'aws-sdk';
 import { promises } from 'fs';
-import { enlistSensor } from '../src/util/api';
+import { enlistSensor } from './util/api';
 import * as rtrim from 'rtrim';
 
 require('dotenv').load();
