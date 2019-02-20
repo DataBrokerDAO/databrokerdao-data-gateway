@@ -5,11 +5,12 @@ import { listDtxTokenRegistry, listStreamRegistry } from '../dapi/registries';
 import { requestDtxAmountApproval } from '../dapi/token';
 import { waitFor } from './async';
 import { requestEnlistSensor, waitForEnlistSensor } from '../dapi/sensor';
+import { enlistDbSensor } from '../services/mongodb';
 
 export async function enlistSensor(sensor: ISensorEnlist) {
   const authToken = await authenticate();
 
-  const ipfsResponseHash = await ipfs(authToken, sensor.metadata);
+  await ipfs(authToken, sensor.metadata);
 
   // Fetch contract addresses
   const dtxTokenAddress = await listDtxTokenRegistry(authToken);
@@ -26,14 +27,17 @@ export async function enlistSensor(sensor: ISensorEnlist) {
   // Request approval response for dtx tokens
   await waitFor(authToken, dtxTokenAddress, approveDtxAmountResponseUuid);
 
-  // Request sensor enlisting
-  const sensorEnlistResponseUuid = await requestEnlistSensor(
-    authToken,
-    ipfsResponseHash,
-    sensor.stakeamount,
-    sensor.price
-  );
+  // TODO: Re-enable on release
+  // // Request sensor enlisting
+  // const sensorEnlistResponseUuid = await requestEnlistSensor(
+  //   authToken,
+  //   ipfsResponseHash,
+  //   sensor.stakeamount,
+  //   sensor.price
+  // );
 
-  // Request sensor enlisting response
-  await waitForEnlistSensor(authToken, sensorEnlistResponseUuid);
+  // // Request sensor enlisting response
+  // await waitForEnlistSensor(authToken, sensorEnlistResponseUuid);
+
+  enlistDbSensor(sensor);
 }
