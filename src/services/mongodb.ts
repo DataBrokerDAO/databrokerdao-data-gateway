@@ -1,10 +1,11 @@
 import { MongoClient } from 'mongodb';
-import * as luftdaten from '../data/luftdaten';
+import { getLuftdatenSensors } from '../data/luftdaten';
+import { ISensor } from '../types';
 
 const globalAny: any = global;
 
 export async function updateDbSensors() {
-  const sensorData = await luftdaten.getSensors();
+  const sensorData = await getLuftdatenSensors();
   if (sensorData != null || sensorData !== undefined) {
     globalAny.sensorData = sensorData;
   }
@@ -45,7 +46,7 @@ export function compareSensors(sensorData: any) {
         const col = client
           .db(process.env.MONGO_DB_NAME)
           .collection(process.env.MONGO_DB_SENSOR_COLLECTION);
-        let newSensorArray: IDatabaseSensor[] = [];
+        let newSensorArray: ISensor[] = [];
         col
           .find()
           .toArray()
@@ -78,10 +79,10 @@ function initializeDatabase(sensorData: any) {
         // TODO: extract connection logic
         MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
           //TODO: fix import
-          let newSensorArray: IDatabaseSensor[] = [];
+          let newSensorArray: ISensor[] = [];
           for (let index = 0; index < sensorData.data.length; index++) {
             let sensor = sensorData.data[index];
-            let newSensor = new Sensor(sensor.sensor.id, false);
+            let newSensor = { id: sensor.sensor.id, enlisted: false };
             newSensorArray.push(newSensor);
           }
 

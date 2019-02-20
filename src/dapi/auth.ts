@@ -1,4 +1,4 @@
-import { rp } from 'request-promise';
+import rp = require('request-promise');
 import { DAPI_BASE_URL } from '../config/dapi-config';
 
 let authToken: string;

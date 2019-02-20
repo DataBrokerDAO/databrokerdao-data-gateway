@@ -1,5 +1,5 @@
-import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
-import { ILuftDatenSensorResource, ISensor } from '../types';
+import axios from 'axios';
+import { ILuftDatenSensorResource } from '../types';
 import { buildDatabaseDelimiterKey } from '../util/delimit';
 
 const lufdatenApiUrl = 'http://api.luftdaten.info/static/v2/data.json';
@@ -24,9 +24,11 @@ export async function parseLuftdatenSensorData(
   try {
     console.log('Trying to parse sensorData');
     // TODO: make this more clean
-    const rawSensorDict = {};
+    const rawSensorDict: {
+      string?: ILuftDatenSensorResource;
+    } = {};
     const sensorTypes = {};
-    for (const rawSensor of sensorData.data) {
+    for (const rawSensor of sensorData) {
       for (const sensorParameter of rawSensor.sensordatavalues) {
         if (
           sensorTypes[sensorParameter.value_type] === undefined ||

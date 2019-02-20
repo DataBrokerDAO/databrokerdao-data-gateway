@@ -1,9 +1,9 @@
-import { rp } from 'request-promise';
-import retry from 'async';
+import rp = require('request-promise');
+import retry from 'async-retry';
 
 export async function waitFor(authToken: string, url: string) {
   return await retry(
-    async (bail: Async) => {
+    async bail => {
       console.log(`Waiting for ${url}`);
       const res = await rp({
         method: 'GET',

@@ -1,5 +1,6 @@
 import { transformLuftdatenSensorsToSensors } from '../data/transform';
-import { enlistSensor } from '../util/api';
+import { enlistSensors } from '../util/api';
+import { ILuftDatenSensorResource } from '../types';
 import {
   getLuftdatenSensors,
   parseLuftdatenSensorData
@@ -10,22 +11,24 @@ require('dotenv').config();
 
 const DELIMITER = '!##!';
 
-async function enlistSensors() {
+async function enlistLufdatenSensors() {
   // Fetch sensor data from the Lufdaten API
   const data = await getLuftdatenSensors();
 
   // Parse json into dictionary
-  const rawSensorDict = await parseLuftdatenSensorData(data);
+  const rawSensorDict: {
+    string?: ILuftDatenSensorResource;
+  } = await parseLuftdatenSensorData(data.data);
 
   // Loop every "sensor object" from the JSON and transform into a LuftDatenSensor type
-  const sensorDict = transformLuftdatenSensorsToSensors(rawSensorDict);
+  const sensors = transformLuftdatenSensorsToSensors(rawSensorDict);
 
   // List the sensors to databrokerdao
   // TODO: Switch to sensors array instead of dictionary
-  await enlistSensor(sensors);
+  await enlistSensors(sensors);
 }
 
-enlistSensors();
+enlistLufdatenSensors();
 
 /*tslint:disable*/
 

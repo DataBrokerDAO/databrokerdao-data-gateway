@@ -1,7 +1,4 @@
-import * as express from 'express';
-import * as mongoDbConnection from './services/mongodb';
-import * as enlistSensors from './scripts/enlistluftdatensensors';
-import { ISensor } from './services/model/sensor';
+import express = require('express');
 
 require('dotenv').load();
 

@@ -1,12 +1,13 @@
 import { authenticate } from '../dapi/auth';
-import { ILuftDatenSensorResource, ISensor } from '../types';
+import { ILuftDatenSensorResource, ISensorEnlist } from '../types';
+import { ipfs } from '../dapi/ipfs';
+import { listDtxTokenRegistry } from '../dapi/registries';
 
-export async function enlistSensors(sensors: ILuftDatenSensorResource[]) {
+export async function enlistSensors(sensors: ISensorEnlist[]) {
   console.log('Attempting to Enlist multiple sensors');
   try {
-    for (const sensorKey of Object.keys(sensorDict)) {
-      const sensor = sensorDict[sensorKey];
-
+    for (const sensor of sensors) {
+      let sensorKey: string = sensor.metadata.sensorid;
       try {
         console.log(`Enlisting sensor with ID ${sensorKey}`);
         await enlistSensor(sensor);
@@ -24,16 +25,15 @@ export async function enlistSensors(sensors: ILuftDatenSensorResource[]) {
   console.log('Succesfully enlisted all sensors');
 }
 
-export async function enlistSensor(sensor: ISensor[]) {
+export async function enlistSensor(sensor: ISensorEnlist) {
   // Request authtoken
   const authToken = await authenticate();
 
   // Post to ipfs
-  await ipfs(authToken, sensor.metadata).then(response => {
-    console.log('Step ipfs succesfull, response was: ', response);
-    sensor.metadata = response[0].hash;
-    step(null, authToken);
-  });
+  await ipfs(authToken, sensor.metadata);
+
+  // List dtxtokenregistry
+  await listDtxTokenRegistry(authToken);
   // await dapi.fetchDTXTokenRegistry();
   // await dapi.fetchStreamRegistry();
 }

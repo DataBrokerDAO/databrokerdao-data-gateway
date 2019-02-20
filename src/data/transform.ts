@@ -1,8 +1,13 @@
+import { ILuftDatenSensorResource, ISensorEnlist } from '../types';
+
+// TODO: Make dynamic
 const PRICE = 50;
 const STAKEAMOUNT = 50;
 
-export function transformLuftdatenSensorsToSensors(rawSensorsDict) {
-  const sensorDict = {};
+export function transformLuftdatenSensorsToSensors(rawSensorsDict: {
+  string?: ILuftDatenSensorResource;
+}): ISensorEnlist[] {
+  const sensorArray = [];
   try {
     console.log(
       'Attempting to parse Luftdaten sensors into databrokerdao sensor type'
@@ -12,12 +17,12 @@ export function transformLuftdatenSensorsToSensors(rawSensorsDict) {
         rawSensorsDict[rawSensorKey],
         rawSensorKey
       );
-      sensorDict[rawSensorKey] = sensor;
+      sensorArray.push(sensor);
     }
     console.log(
       'Succesfully parsed the Luftdaten sensors into databrokerdao sensor type'
     );
-    return sensorDict;
+    return sensorArray;
   } catch (error) {
     console.error('Failed to parse sensor data!', error);
   }
@@ -25,8 +30,8 @@ export function transformLuftdatenSensorsToSensors(rawSensorsDict) {
 
 export function transformLufdatenSensorToSensor(
   sensor: ILuftDatenSensorResource,
-  rawSensorKey
-): ISensor {
+  rawSensorKey: string
+): ISensorEnlist {
   return {
     price: PRICE,
     stakeamount: STAKEAMOUNT,
