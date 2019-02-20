@@ -25,7 +25,7 @@ export async function enlistSensor(sensor: ISensorEnlist) {
 
   // Request approval response for dtx tokens
   await waitFor(authToken, dtxTokenAddress, approveDtxAmountResponseUuid);
-
+  return;
   // Request sensor enlisting
   const sensorEnlistResponseUuid = await requestEnlistSensor(
     authToken,

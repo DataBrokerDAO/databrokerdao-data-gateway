@@ -7,15 +7,22 @@ require('dotenv').config();
 async function enlistLufdatenSensors() {
   // Fetch and transform sensor data from the Lufdaten API
   const luftDatenSensorsRaw = await getLuftdatenSensors();
-  const luftDatenSensors = luftDatenSensorsRaw.map(transformLuftdatenSensor);
+  const luftDatenSensors = luftDatenSensorsRaw.map(transformLuftdatenSensor).filter(Boolean);
+
+  const typeCache = {};
 
   // EnList the sensors
-  const groupBy = {};
   for (let i = 0; i < luftDatenSensors.length; i++) {
-    console.log(luftDatenSensors[i]);
-    await enlistSensor(luftDatenSensors[i]);
-    break;
+    const type = luftDatenSensors[i].metadata.type;
+    if (typeCache[type] === undefined) {
+      console.log(luftDatenSensors[i]);
+      // await enlistSensor(luftDatenSensors[i]);
+      typeCache[type] = 1;
+    }
+    typeCache[type]++;
   }
+
+  console.log(typeCache);
 }
 enlistLufdatenSensors();
 
