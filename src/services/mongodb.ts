@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 import { ISensor, ISensorEnlist } from '../types';
-import { MONGO_DB_URL } from '../config/dapi-config';
 import {
   MONGO_DB_URL,
   MONGO_DB_NAME,
