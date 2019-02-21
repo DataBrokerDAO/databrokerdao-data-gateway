@@ -1,7 +1,5 @@
 import rp = require('request-promise');
 import retry from 'async-retry';
-import rtrim from 'rtrim';
-import { DAPI_BASE_URL } from '../config/dapi-config';
 
 export async function waitFor(authToken: string, url: string) {
   try {

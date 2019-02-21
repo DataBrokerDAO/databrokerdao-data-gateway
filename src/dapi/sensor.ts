@@ -1,6 +1,5 @@
 import { DAPI_BASE_URL } from '../config/dapi-config';
 import rp = require('request-promise');
-import { ISensorEnlist } from '../types';
 
 export async function requestEnlistSensor(
   authToken: string,
@@ -15,13 +14,13 @@ export async function requestEnlistSensor(
       body: {
         _metadata: metadata,
         _stakeAmount: stakeAmount,
-        _price: price
+        _price: price,
       },
       headers: {
         Authorization: authToken,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      json: true
+      json: true,
     });
     return response.uuid;
   } catch (error) {

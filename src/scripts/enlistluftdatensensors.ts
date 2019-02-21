@@ -2,7 +2,6 @@ import {
   transformLuftdatenSensor,
   transformLuftdatenSensorsToSensors,
 } from '../data/transform';
-import { enlistSensor } from '../util/api';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { enlistDbSensors } from '../services/mongodb';
 import { ISensor } from '../types';
