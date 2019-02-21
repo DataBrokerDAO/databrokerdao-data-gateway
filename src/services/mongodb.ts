@@ -1,45 +1,47 @@
 import { MongoClient } from 'mongodb';
-import { getLuftdatenSensors } from '../data/luftdaten';
 import { ISensor, ISensorEnlist } from '../types';
+import { MONGO_DB_URL } from '../config/dapi-config';
+import {
+  MONGO_DB_URL,
+  MONGO_DB_NAME,
+  MONGO_DB_SENSOR_COLLECTION,
+} from '../config/dapi-config';
 
 export async function enlistDbSensors(sensors: ISensor[]) {
-    MongoClient.connect(process.env.MONGO_DB_URL, { useNewUrlParser: true}, (err, client) => {
-    const col = client
-      .db(process.env.MONGO_DB_NAME)
-      .collection(process.env.MONGO_DB_SENSOR_COLLECTION);
+  MongoClient.connect(MONGO_DB_URL, (err, client) => {
+    if (err) {
+      console.error('Failed to connect to database with error', err);
+    } else {
+      const col = client
+        .db(MONGO_DB_NAME)
+        .collection(MONGO_DB_SENSOR_COLLECTION);
 
-    col.countDocuments().then(result => {
-      if (result < 1) {
-        console.log('Database appears to be empty, attempting to fill');
-        // TODO: extract connection logic
-        MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
-          //TODO: fix import
-          let newSensorArray: ISensor[] = [];
-          for (let index = 0; index < sensorData.data.length; index++) {
-            let sensor = sensorData.data[index];
-            let newSensor = { id: sensor.sensor.id, enlisted: false };
-            newSensorArray.push(newSensor);
-          }
-
-          col.insertMany(newSensorArray);
-
-          client.close();
-          console.log('Database initialized');
-        });
-      }
-    });
-});
+      col.insertMany(sensors).then(() => {
+        client.close();
+      });
+    }
+  });
 }
 
 export async function enlistDbSensor(sensor: ISensorEnlist) {
-  MongoClient.connect(process.env.MONGO_DB_URL, (err, client) => {
-    const col = client
-      .db(process.env.MONGO_DB_NAME)
-      .collection(process.env.MONGO_DB_SENSOR_COLLECTION);
-
-
-    // TODO: sensor transform in separate function?
-    col.updateOne({id: sensor.metadata.sensorid, enlisted: true}, {upsert: true});
+  MongoClient.connect(MONGO_DB_URL, (err, client) => {
+    if (err) {
+      console.error('Failed to connect to database with error', err);
+    } else {
+      const col = client
+        .db(MONGO_DB_NAME)
+        .collection(MONGO_DB_SENSOR_COLLECTION);
+      col
+        .updateOne(
+          { id: sensor.metadata.sensorid },
+          { $set: { id: sensor.metadata.sensorid, enlisted: true } },
+          { upsert: true }
+        )
+        .then(() => {
+          client.close();
+        });
+    }
+  });
 }
 
 // TODO: Clear this crap

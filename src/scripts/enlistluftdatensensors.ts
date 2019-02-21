@@ -1,6 +1,11 @@
-import { transformLuftdatenSensor } from '../data/transform';
+import {
+  transformLuftdatenSensor,
+  transformLuftdatenSensorsToSensors,
+} from '../data/transform';
 import { enlistSensor } from '../util/api';
 import { getLuftdatenSensors } from '../data/luftdaten';
+import { enlistDbSensors } from '../services/mongodb';
+import { ISensor } from '../types';
 
 require('dotenv').config();
 
@@ -13,13 +18,21 @@ async function enlistLufdatenSensors() {
 
   // EnList the sensors
   for (let i = 0; i < luftDatenSensors.length; i++) {
-    try {
-      console.log(`Enlisting sensor ${luftDatenSensors[i].metadata.sensorid}`);
-      await enlistSensor(luftDatenSensors[i]);
-      total++;
-    } catch (error) {
-      console.log(`Failed to enlist sensor ${luftDatenSensors[i].metadata.sensorid}`, error);
+    const type = luftDatenSensors[i].metadata.type;
+    if (typeCache[type] === undefined) {
+      console.log(luftDatenSensors[i]);
+      // TODO: re-enable on deploy, fault place in code?
+      // await enlistSensor(luftDatenSensors[i]);
+
+      typeCache[type] = 1;
     }
   }
+
+  let sensorArray: ISensor[] = transformLuftdatenSensorsToSensors(
+    luftDatenSensors
+  );
+  enlistDbSensors(sensorArray);
+
+  console.log(typeCache);
 }
 enlistLufdatenSensors();

@@ -1,4 +1,4 @@
-import { IRawLuftDatenSensor, ISensorEnlist } from '../types';
+import { IRawLuftDatenSensor, ISensorEnlist, ISensor } from '../types';
 
 const DELIMITER = '!##!';
 const ORIGIN_LUFTDATEN = 'LUFTDATEN';
@@ -8,13 +8,23 @@ const MIN_PRICE = 30;
 const MAX_PRICE = 80;
 const STAKEAMOUNT = 0;
 
+export function transformLuftdatenSensorsToSensors(sensors: ISensorEnlist[]) {
+  return sensors.map(transformLuftdatenSensorToSensor);
+}
+
+function transformLuftdatenSensorToSensor(sensor: ISensorEnlist) {
+  return { id: sensor.metadata.sensorid, enlisted: true };
+}
+
 export function transformLuftdatenSensor(
   sensor: IRawLuftDatenSensor
-): ISensorEnlist|null {
+): ISensorEnlist | null {
   let transformed = null;
   try {
     transformed = {
-      price: Math.floor(generatePriceInDTX(calculateRandom()) / 100000).toString(),
+      price: Math.floor(
+        generatePriceInDTX(calculateRandom()) / 100000
+      ).toString(),
       stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
       metadata: {
         name: generateName(sensor),
@@ -26,12 +36,10 @@ export function transformLuftdatenSensor(
         type: generateType(sensor),
         example: JSON.stringify(sensor.sensordatavalues[0]),
         updateinterval: 86400000, // in ms
-        sensortype: SENSORTYPE_STREAM
-      }
+        sensortype: SENSORTYPE_STREAM,
+      },
     };
-  } catch (error) {
-
-  }
+  } catch (error) {}
   return transformed;
 }
 
@@ -41,7 +49,7 @@ function generateName(sensor: IRawLuftDatenSensor) {
     temperature: 'Temp',
     humidity: 'Hum',
     PM10: 'PM10',
-    PM25: 'PM2.5'
+    PM25: 'PM2.5',
   };
 
   return `Luftdaten ${typeToKey[type]} #${sensor.sensor.id}`;
