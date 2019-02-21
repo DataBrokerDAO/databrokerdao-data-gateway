@@ -41,7 +41,7 @@ export async function enlistSensor(sensor: ISensorEnlist) {
   );
 
   // Request sensor enlisting response
-  await waitForEnlistSensor(
+  await waitFor(
     authToken,
     `${DAPI_BASE_URL}/sensorregistry/enlist/${sensorEnlistResponseUuid}`
   );

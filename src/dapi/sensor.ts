@@ -27,8 +27,3 @@ export async function requestEnlistSensor(
     console.error('Failed to request sensor enlisting with error', error);
   }
 }
-
-export async function waitForEnlistSensor(
-  authToken: string,
-  sensorEnlistResponseUuid: string
-) {}
