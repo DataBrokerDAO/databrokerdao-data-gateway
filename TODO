@@ -1,5 +1,1 @@
-REQ: Change static variables like mint's config.ts files
-REQ: Make properly use of typescrypt, add as many types as possible to the code, it's an error party in the ts-build console
-REQ: in all these files, old and new there's terrible usage of async awaits. `.then` and `.catch` should _all_ be refactored and use proper awaits unless you have a very good reason not to
-REQ: Search how to run js file as script
 REQ: Update readme
