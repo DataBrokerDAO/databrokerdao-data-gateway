@@ -21,7 +21,7 @@ export function transformLuftdatenSensor(
         sensorid: generateSensorId(sensor),
         geo: {
           lat: parseFloat(sensor.location.latitude),
-          lng: parseFloat(sensor.location.latitude)
+          lng: parseFloat(sensor.location.longitude)
         },
         type: generateType(sensor),
         example: JSON.stringify(sensor.sensordatavalues[0]),

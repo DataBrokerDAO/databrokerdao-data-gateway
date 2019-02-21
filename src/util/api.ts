@@ -7,6 +7,7 @@ import { waitFor } from './async';
 import { requestEnlistSensor, waitForEnlistSensor } from '../dapi/sensor';
 
 export async function enlistSensor(sensor: ISensorEnlist) {
+  return; console.log('Skip Enlist')
   const authToken = await authenticate();
 
   const ipfsResponseHash = await ipfs(authToken, sensor.metadata);
@@ -25,7 +26,7 @@ export async function enlistSensor(sensor: ISensorEnlist) {
 
   // Request approval response for dtx tokens
   await waitFor(authToken, dtxTokenAddress, approveDtxAmountResponseUuid);
-  return;
+
   // Request sensor enlisting
   const sensorEnlistResponseUuid = await requestEnlistSensor(
     authToken,

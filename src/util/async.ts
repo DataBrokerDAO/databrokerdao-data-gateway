@@ -14,7 +14,6 @@ export async function waitFor(
       `/dtxtoken/${tokenAddress}/approve/${approveDtxAmountResponseUuid}`;
     await retry(
       async bail => {
-        console.log(`Waiting for ${url}`);
         const res = await rp({
           method: 'GET',
           uri: url,
