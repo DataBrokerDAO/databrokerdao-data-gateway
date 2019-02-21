@@ -4,7 +4,7 @@ import { ipfs } from '../dapi/ipfs';
 import { listDtxTokenRegistry, listStreamRegistry } from '../dapi/registries';
 import { requestDtxAmountApproval } from '../dapi/token';
 import { waitFor } from './async';
-import { requestEnlistSensor, waitForEnlistSensor } from '../dapi/sensor';
+import { requestEnlistSensor } from '../dapi/sensor';
 import { DAPI_BASE_URL } from '../config/dapi-config';
 
 export async function enlistSensor(sensor: ISensorEnlist) {

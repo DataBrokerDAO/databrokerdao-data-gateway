@@ -3,7 +3,7 @@ import {
   transformLuftdatenSensorsToSensors,
 } from '../data/transform';
 import { getLuftdatenSensors } from '../data/luftdaten';
-import { enlistDbSensors } from '../services/mongodb';
+import { enlistDbSensors, checkEnlistedDbSensor } from '../services/mongodb';
 import { ISensor } from '../types';
 
 require('dotenv').config();
@@ -23,8 +23,13 @@ async function enlistLufdatenSensors() {
     if (typeCache[type] === undefined) {
       console.log(luftDatenSensors[i]);
       // TODO: re-enable on deploy, fault place in code?
-      // await enlistSensor(luftDatenSensors[i]);
-
+      const sensorAmount = await checkEnlistedDbSensor(
+        luftDatenSensors[i].metadata.sensorid
+      );
+      console.log(sensorAmount);
+      if (sensorAmount < 1) {
+        // await enlistSensor(luftDatenSensors[i]);
+      }
       typeCache[type] = 1;
     }
     typeCache[type]++;

@@ -6,6 +6,27 @@ import {
   MONGO_DB_SENSOR_COLLECTION,
 } from '../config/dapi-config';
 
+export async function checkEnlistedDbSensor(sensorId: string) {
+  let sensors = [];
+  MongoClient.connect(MONGO_DB_URL, (err, client) => {
+    if (err) {
+      console.error('Failed to connect to database with error', err);
+    } else {
+      const col = client
+        .db(MONGO_DB_NAME)
+        .collection(MONGO_DB_SENSOR_COLLECTION);
+      console.log(sensorId);
+      col
+        .find({ id: sensorId })
+        .count()
+        .then((amount: number) => {
+          client.close();
+          return amount;
+        });
+    }
+  });
+}
+
 export async function enlistDbSensors(sensors: ISensor[]) {
   MongoClient.connect(MONGO_DB_URL, (err, client) => {
     if (err) {
