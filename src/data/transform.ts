@@ -1,4 +1,4 @@
-import { IRawLuftDatenSensor, ISensorEnlist } from '../types';
+import { IRawLuftDatenSensor, ISensorEnlist, IStreamSensor } from '../types';
 
 const DELIMITER = '!##!';
 const ORIGIN_LUFTDATEN = 'LUFTDATEN';
@@ -31,7 +31,7 @@ export function transformLuftdatenSensor(
         sensorid: generateSensorId(sensor),
         geo: {
           lat: parseFloat(sensor.location.latitude),
-          lng: parseFloat(sensor.location.longitude)
+          lng: parseFloat(sensor.location.longitude),
         },
         type: generateType(sensor),
         example: JSON.stringify(sensor.sensordatavalues[0]),
@@ -39,8 +39,37 @@ export function transformLuftdatenSensor(
         sensortype: SENSORTYPE_STREAM,
       },
     };
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
   return transformed;
+}
+
+export function transformLuftdatenSensorsToDataStreamSensors(
+  sensors: IRawLuftDatenSensor[]
+): IStreamSensor[] {
+  let transformed: IStreamSensor[] = [];
+  try {
+    transformed = sensors.map(transformLuftdatenSensorToDataStreamSensor);
+  } catch (error) {
+    throw error;
+  }
+  return transformed;
+}
+
+function transformLuftdatenSensorToDataStreamSensor(
+  sensor: IRawLuftDatenSensor
+): IStreamSensor {
+  try {
+    let newSensor: IStreamSensor = {
+      id: generateSensorId(sensor),
+      value: sensor.sensordatavalues[0].value,
+      value_type: sensor.sensordatavalues[0].value_type,
+    };
+    return newSensor;
+  } catch (error) {
+    throw error;
+  }
 }
 
 function generateName(sensor: IRawLuftDatenSensor) {

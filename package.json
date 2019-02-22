@@ -16,7 +16,7 @@
     "prepublishOnly": "docker build --build-arg NPM_TOKEN=${NPM_TOKEN} -t settlemint/mint -t settlemint/mint-dapi .",
     "uglifyjs": "uglifyjs-folder ./dist -yeo ./dist -x .js",
     "start": "ts-node src/server.ts",
-    "dev": "./node_modules/nodemon/bin/nodemon.js",
+    "dev": "ts-node-dev src/server.ts",
     "loadfixtures": "node dist/fixtures.js",
     "travis-deploy-once": "travis-deploy-once --pro",
     "watch-node": "nodemon dist/server.js",

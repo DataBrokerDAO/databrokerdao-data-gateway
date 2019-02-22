@@ -8,6 +8,11 @@ export const DAPI_BASE_URL: string = rtrim(
   '/'
 );
 
+export const DATABROKER_CUSTOM_DAPI_BASE_URL: string = rtrim(
+  process.env.DATABROKER_CUSTOM_DAPI_BASE_URL,
+  '/'
+);
+
 export const LUFTDATEN_API_URL: string = rtrim(
   process.env.LUFTDATEN_API_URL ||
     'http://api.luftdaten.info/static/v2/data.json',
@@ -20,3 +25,5 @@ export const MONGO_DB_NAME: string = process.env.MONGO_DB_NAME;
 
 export const MONGO_DB_SENSOR_COLLECTION: string =
   process.env.MONGO_DB_SENSOR_COLLECTION;
+
+export const SENSOR_UPDATE_INTERVAL = 5; //24 * 3600;

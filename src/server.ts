@@ -1,11 +1,18 @@
 import express = require('express');
+import { lufdatenCron } from './services/stream';
 
 require('dotenv').load();
 
 const app = express();
-const intervalTimeInSeconds = 5;
 
 function bootstrap() {
-  setTimeout(bootstrap, 1000 * intervalTimeInSeconds);
+  console.log('I say every second hi! :D');
+  setTimeout(bootstrap, 1000 * 1);
 }
+
+function init() {
+  lufdatenCron();
+}
+
+init();
 bootstrap();
