@@ -46,3 +46,10 @@ export interface ISensorEnlist {
     sensortype: string;
   };
 }
+
+export interface IStreamSensor {
+  key: string;
+  sensorid: number;
+  value: number;
+  value_type: string;
+}
