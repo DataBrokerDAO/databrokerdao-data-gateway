@@ -3,7 +3,7 @@ import {
   transformLuftdatenSensorsToSensors,
 } from '../data/transform';
 import { getLuftdatenSensors } from '../data/luftdaten';
-import { enlistDbSensors, checkEnlistedDbSensor } from '../services/mongodb';
+import { enlistDbSensors, checkEnlistedDbSensor } from '../mongo/store';
 import { ISensor } from '../types';
 
 require('dotenv').config();

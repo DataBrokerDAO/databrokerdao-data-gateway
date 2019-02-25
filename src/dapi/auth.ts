@@ -1,5 +1,9 @@
 import rp = require('request-promise');
-import { DAPI_BASE_URL } from '../config/dapi-config';
+import {
+  DAPI_BASE_URL,
+  DAPI_USERNAME,
+  DAPI_PASSWORD,
+} from '../config/dapi-config';
 
 let authToken: string;
 
@@ -10,14 +14,14 @@ export async function authenticate() {
         method: 'POST',
         uri: `${DAPI_BASE_URL}/accounts/authenticate`,
         body: {
-          username: process.env.DAPI_USERNAME,
-          password: process.env.DAPI_PASSWORD
+          username: DAPI_USERNAME,
+          password: DAPI_PASSWORD,
         },
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
         },
-        json: true
+        json: true,
       };
 
       const response = await rp(options);
