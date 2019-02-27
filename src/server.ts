@@ -1,26 +1,15 @@
-import express = require('express');
-import { lufdatenCron } from './services/stream';
-import { MIDDLEWARE_PORT } from './config/dapi-config';
-//import { registerJobs } from './cron/scheduler';
-
-require('dotenv').load();
-
-const app = express();
-
-function bootstrap() {
-  console.log(MIDDLEWARE_PORT);
-  app.listen(MIDDLEWARE_PORT, async () => {
-    console.log(`Listening on port ${MIDDLEWARE_PORT}`);
-
-    // TODO: remove?
-    // const jobs = await getCronJobs();
-  });
-}
+import { lufdatenCron } from './crons/stream';
+import { CronJob } from 'cron';
 
 function init() {
-  console.log('Registering jobs...');
-  lufdatenCron();
+  console.log('Scheduling LUFTDATEN cron...');
+  new CronJob(
+    '*/5 * * * * *',
+    lufdatenCron,
+    lufdatenCron,
+    true,
+    'Europe/Brussels'
+  ).start();
 }
 
 init();
-bootstrap();

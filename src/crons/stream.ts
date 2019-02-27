@@ -1,7 +1,4 @@
-import {
-  SENSOR_UPDATE_INTERVAL,
-  DATABROKER_CUSTOM_DAPI_BASE_URL,
-} from '../config/dapi-config';
+import { DATABROKER_CUSTOM_DAPI_BASE_URL } from '../config/dapi-config';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { transformLuftdatenSensorsToDataStreamSensors } from '../data/transform';
 import express = require('express');
@@ -11,11 +8,8 @@ import Axios from 'axios';
 const app = express();
 
 export async function lufdatenCron() {
-  setTimeout(lufdatenCron, 1000 * SENSOR_UPDATE_INTERVAL);
-  console.log('Hi from cron!!');
-
-  // let rawSensors = await getLuftdatenSensors();
-  // let streamSensors = await transformLuftdatenSensorsToDataStreamSensors(
+  // const rawSensors = await getLuftdatenSensors();
+  // const streamSensors = await transformLuftdatenSensorsToDataStreamSensors(
   //   rawSensors
   // );
 
@@ -39,16 +33,21 @@ export async function lufdatenCron() {
       value_type: 'temperature',
     },
   ];
-  let data = { data: streamSensors };
 
-  pushSensorsToCustomDapi(data);
+  streamSensors.map(pushSensorToCustomDapi);
 }
 
-async function pushSensorsToCustomDapi(sensors: { data: IStreamSensor[] }) {
-  console.log(DATABROKER_CUSTOM_DAPI_BASE_URL, 'hi!!');
-  Axios.post(`${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensorData`, sensors).catch(
-    error => {
-      //console.error(error);
-    }
-  );
+async function pushSensorToCustomDapi(sensor: IStreamSensor) {
+  try {
+    await Axios.post(buildCustomDapiUrl(sensor), sensor);
+  } catch (error) {
+    console.error(
+      `Failed pushing sensor ${sensor.sensorid} to custom DAPI`,
+      error
+    );
+  }
+}
+
+function buildCustomDapiUrl(sensor: IStreamSensor) {
+  return `${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensorData/${sensor.sensorid}`;
 }
