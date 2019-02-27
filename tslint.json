@@ -1,12 +1,13 @@
 {
-  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "extends": [
+    "tslint:latest",
+    "tslint-consistent-codestyle",
+    "tslint-config-prettier"
+  ],
   "rules": {
     "no-submodule-imports": false,
     "no-console": false,
     "object-literal-sort-keys": false,
-    "no-empty-interface": false,
-    "jsx-no-lambda": false,
-    "jsx-no-bind": false,
     "prefer-for-of": false
   }
 }

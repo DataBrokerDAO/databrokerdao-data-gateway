@@ -1,10 +1,12 @@
-import { lufdatenCron } from './crons/stream';
 import { CronJob } from 'cron';
+import { lufdatenCron } from './crons/stream';
 
 function init() {
   console.log('Scheduling LUFTDATEN cron...');
+  // TODO: Remove after debugging
+  lufdatenCron();
   new CronJob(
-    '*/5 * * * * *',
+    '*/30 * * * * *',
     lufdatenCron,
     lufdatenCron,
     true,

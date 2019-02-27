@@ -1,9 +1,9 @@
+import Axios from 'axios';
+import express = require('express');
 import { DATABROKER_CUSTOM_DAPI_BASE_URL } from '../config/dapi-config';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { transformLuftdatenSensorsToDataStreamSensors } from '../data/transform';
-import express = require('express');
 import { IStreamSensor } from '../types';
-import Axios from 'axios';
 
 const app = express();
 
@@ -39,6 +39,7 @@ export async function lufdatenCron() {
 
 async function pushSensorToCustomDapi(sensor: IStreamSensor) {
   try {
+    console.log(buildCustomDapiUrl(sensor));
     await Axios.post(buildCustomDapiUrl(sensor), sensor);
   } catch (error) {
     console.error(
@@ -49,5 +50,5 @@ async function pushSensorToCustomDapi(sensor: IStreamSensor) {
 }
 
 function buildCustomDapiUrl(sensor: IStreamSensor) {
-  return `${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensorData/${sensor.sensorid}`;
+  return `${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensor`;
 }
