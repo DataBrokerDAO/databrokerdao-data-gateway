@@ -50,5 +50,5 @@ async function pushSensorToCustomDapi(sensor: IStreamSensor) {
 }
 
 function buildCustomDapiUrl(sensor: IStreamSensor) {
-  return `${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensor`;
+  return `${DATABROKER_CUSTOM_DAPI_BASE_URL}/sensor/data`;
 }
