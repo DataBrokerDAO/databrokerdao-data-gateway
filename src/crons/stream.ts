@@ -15,7 +15,7 @@ export async function lufdatenCron() {
 
   const streamSensors = [
     {
-      key: 'LUFTDATEN!##!92!##!SDS011',
+      key: 'LUFTDATEN!##!122!##!SDS011',
       sensorid: 92,
       value: '5.285',
       value_type: 'P1',

@@ -5,10 +5,10 @@ export async function ipfs(authToken: string, metadata: object) {
   try {
     const response = await rp({
       method: 'POST',
-      uri: `${DAPI_BASE_URL}/ipfs/add/json`,
+      uri: `${DAPI_BASE_URL}/dapi/v1/ipfs/add/json`,
       body: { data: metadata },
       headers: { Authorization: authToken },
-      json: true
+      json: true,
     });
     return response[0].hash;
   } catch (error) {

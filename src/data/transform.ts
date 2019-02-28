@@ -61,7 +61,7 @@ function transformLuftdatenSensorToDataStreamSensor(
   sensor: IRawLuftDatenSensor
 ): IStreamSensor {
   try {
-    let newSensor: IStreamSensor = {
+    const newSensor: IStreamSensor = {
       key: generateSensorId(sensor),
       sensorid: sensor.sensor.id,
       value: sensor.sensordatavalues[0].value,

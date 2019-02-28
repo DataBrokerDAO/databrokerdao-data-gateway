@@ -10,15 +10,15 @@ export async function requestDtxAmountApproval(
   try {
     const response = await rp({
       method: 'POST',
-      uri: DAPI_BASE_URL + `/dtxtoken/${tokenAddress}/approve`,
+      uri: DAPI_BASE_URL + `/dapi/dtxtoken/${tokenAddress}/approve`,
       body: {
         _spender: spenderAddress,
-        _value: amount
+        _value: amount,
       },
       headers: {
-        Authorization: authToken
+        Authorization: authToken,
       },
-      json: true
+      json: true,
     });
     return response.uuid;
   } catch (error) {

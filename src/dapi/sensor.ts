@@ -1,5 +1,5 @@
-import { DAPI_BASE_URL } from '../config/dapi-config';
 import rp = require('request-promise');
+import { DAPI_BASE_URL } from '../config/dapi-config';
 
 export async function requestEnlistSensor(
   authToken: string,
@@ -10,7 +10,7 @@ export async function requestEnlistSensor(
   try {
     const response = await rp({
       method: 'POST',
-      uri: DAPI_BASE_URL + '/sensorregistry/enlist',
+      uri: DAPI_BASE_URL + '/dapi/sensorregistry/enlist',
       body: {
         _metadata: metadata,
         _stakeAmount: stakeAmount,
