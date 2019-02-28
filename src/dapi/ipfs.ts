@@ -5,7 +5,7 @@ export async function ipfs(authToken: string, metadata: object) {
   try {
     const response = await rp({
       method: 'POST',
-      uri: `${DAPI_BASE_URL}/dapi/v1/ipfs/add/json`,
+      uri: `${DAPI_BASE_URL}/v1/ipfs/add/json`,
       body: { data: metadata },
       headers: { Authorization: authToken },
       json: true,

@@ -50,7 +50,7 @@ export interface ISensorEnlist {
 export interface IStreamSensor {
   key: string;
   sensorid: number;
-  value: number;
+  value: string;
   value_type: string;
 }
 

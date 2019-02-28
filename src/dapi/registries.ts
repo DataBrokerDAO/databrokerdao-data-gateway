@@ -4,7 +4,7 @@ import { DAPI_BASE_URL } from '../config/dapi-config';
 export async function listDtxTokenRegistry(authToken: string) {
   const response = await rp({
     method: 'GET',
-    uri: DAPI_BASE_URL + '/dapi/localdtxtokenregistry/list',
+    uri: DAPI_BASE_URL + '/localdtxtokenregistry/list',
     headers: {
       Authorization: authToken,
     },
@@ -16,7 +16,7 @@ export async function listDtxTokenRegistry(authToken: string) {
 export async function listStreamRegistry(authToken: string) {
   const response = await rp({
     method: 'GET',
-    uri: DAPI_BASE_URL + '/dapi/sensorregistry/list',
+    uri: DAPI_BASE_URL + '/sensorregistry/list',
     headers: {
       Authorization: authToken,
     },

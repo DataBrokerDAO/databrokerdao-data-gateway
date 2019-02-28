@@ -3,7 +3,7 @@ import { DAPI_BASE_URL } from '../config/dapi-config';
 
 export async function getListings() {
   try {
-    const response = await axios(`${DAPI_BASE_URL}/dapi/sensorregistry/list`);
+    const response = await axios(`${DAPI_BASE_URL}/sensorregistry/list`);
   } catch (error) {
     throw error;
   }

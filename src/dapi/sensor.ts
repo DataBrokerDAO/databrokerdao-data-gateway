@@ -10,7 +10,7 @@ export async function requestEnlistSensor(
   try {
     const response = await rp({
       method: 'POST',
-      uri: DAPI_BASE_URL + '/dapi/sensorregistry/enlist',
+      uri: DAPI_BASE_URL + '/sensorregistry/enlist',
       body: {
         _metadata: metadata,
         _stakeAmount: stakeAmount,

@@ -1,5 +1,5 @@
-import rp = require('request-promise');
 import retry from 'async-retry';
+import rp = require('request-promise');
 
 export async function waitFor(authToken: string, url: string) {
   try {

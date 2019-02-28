@@ -6,8 +6,6 @@ import {
 import { checkEnlistedDbSensor, enlistDbSensors } from '../mongo/store';
 import { ISensor } from '../types';
 
-require('dotenv').config();
-
 async function enlistLufdatenSensors() {
   // Fetch and transform sensor data from the Lufdaten API
   const luftDatenSensorsRaw = await getLuftdatenSensors();
