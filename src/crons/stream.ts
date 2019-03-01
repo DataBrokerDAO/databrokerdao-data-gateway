@@ -27,7 +27,7 @@ export async function lufdatenCron() {
       value_type: 'humidity',
     },
     {
-      key: 'LUFTDATEN!##!113!##!BME280',
+      key: 'LUFTDATEN!##!92!##!SDS011',
       sensorid: 113,
       value: '40.69',
       value_type: 'temperature',

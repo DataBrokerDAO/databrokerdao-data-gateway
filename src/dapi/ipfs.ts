@@ -1,16 +1,9 @@
-import rp = require('request-promise');
-import { DAPI_BASE_URL } from '../config/dapi-config';
+import axios from 'axios';
 
-export async function ipfs(authToken: string, metadata: object) {
+export async function ipfs(metadata: object) {
   try {
-    const response = await rp({
-      method: 'POST',
-      uri: `${DAPI_BASE_URL}/v1/ipfs/add/json`,
-      body: { data: metadata },
-      headers: { Authorization: authToken },
-      json: true,
-    });
-    return response[0].hash;
+    const response = await axios.post(`/v1/ipfs/add/json`, { data: metadata });
+    return response.data[0].hash;
   } catch (error) {
     console.error(
       'Failed to add sensor metadata to databrokerdao ipfs storage with error',

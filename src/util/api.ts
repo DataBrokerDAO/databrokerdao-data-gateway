@@ -1,25 +1,24 @@
+import { DAPI_BASE_URL } from '../config/dapi-config';
 import { authenticate } from '../dapi/auth';
-import { ISensorEnlist } from '../types';
 import { ipfs } from '../dapi/ipfs';
 import { listDtxTokenRegistry, listStreamRegistry } from '../dapi/registries';
-import { requestDtxAmountApproval } from '../dapi/token';
-import { waitFor } from './async';
 import { requestEnlistSensor } from '../dapi/sensor';
-import { DAPI_BASE_URL } from '../config/dapi-config';
+import { requestDtxAmountApproval } from '../dapi/token';
+import { ISensorEnlist } from '../types';
+import { waitFor } from './async';
 
 export async function enlistSensor(sensor: ISensorEnlist) {
-  return; console.log('Skip Enlist')
-  const authToken = await authenticate();
+  return;
+  console.log('Skip Enlist');
 
-  const ipfsResponseHash = await ipfs(authToken, sensor.metadata);
+  const ipfsResponseHash = await ipfs(sensor.metadata);
 
   // Fetch contract addresses
-  const dtxTokenAddress = await listDtxTokenRegistry(authToken);
-  const spenderAddress = await listStreamRegistry(authToken);
+  const dtxTokenAddress = await listDtxTokenRegistry();
+  const spenderAddress = await listStreamRegistry();
 
   // Approve dtx amount
   const approveDtxAmountResponseUuid = await requestDtxAmountApproval(
-    authToken,
     dtxTokenAddress,
     spenderAddress,
     sensor.stakeamount
@@ -27,23 +26,18 @@ export async function enlistSensor(sensor: ISensorEnlist) {
 
   // Request approval response for dtx tokens
   await waitFor(
-    authToken,
-    `${DAPI_BASE_URL}/dtxtoken/${dtxTokenAddress}/approve/${approveDtxAmountResponseUuid}`
+    `/dtxtoken/${dtxTokenAddress}/approve/${approveDtxAmountResponseUuid}`
   );
 
   // TODO: re-enable on deployment
   return;
   // Request sensor enlisting
   const sensorEnlistResponseUuid = await requestEnlistSensor(
-    authToken,
     ipfsResponseHash,
     sensor.stakeamount,
     sensor.price
   );
 
   // Request sensor enlisting response
-  await waitFor(
-    authToken,
-    `${DAPI_BASE_URL}/sensorregistry/enlist/${sensorEnlistResponseUuid}`
-  );
+  await waitFor(`/sensorregistry/enlist/${sensorEnlistResponseUuid}`);
 }

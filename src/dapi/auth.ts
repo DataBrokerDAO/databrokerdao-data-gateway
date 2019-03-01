@@ -1,31 +1,18 @@
-import rp = require('request-promise');
-import {
-  DAPI_BASE_URL,
-  DAPI_PASSWORD,
-  DAPI_USERNAME,
-} from '../config/dapi-config';
+import axios from 'axios';
+import { DAPI_PASSWORD, DAPI_USERNAME } from '../config/dapi-config';
 
 let authToken: string;
 
 export async function authenticate() {
   try {
     if (!authenticated()) {
-      const options = {
-        method: 'POST',
-        uri: `${DAPI_BASE_URL}/v1/users/authenticate`,
-        body: {
-          username: DAPI_USERNAME,
-          password: DAPI_PASSWORD,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        json: true,
-      };
+      const response = await axios.post(`/v1/users/authenticate`, {
+        username: DAPI_USERNAME,
+        password: DAPI_PASSWORD,
+      });
 
-      const response = await rp(options);
-      authToken = response.jwtToken;
+      authToken = response.data.jwtToken;
+      axios.defaults.headers.common.Authorization = authToken;
     }
     return authToken;
   } catch (error) {

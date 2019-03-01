@@ -8,7 +8,7 @@ export async function getLuftdatenSensors(): Promise<IRawLuftDatenSensor[]> {
   try {
     console.log('Fetch LuftDaten sensor data');
     const sensorData = await axios(LUFTDATEN_API_URL);
-    luftDatenSensors = sensorData.data;
+    luftDatenSensors = sensorData.data.data;
   } catch (error) {
     console.error('Failed to fetch Sensor data from Luftdaten', error);
   }

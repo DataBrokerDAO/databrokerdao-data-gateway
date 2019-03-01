@@ -1,5 +1,4 @@
-import rp = require('request-promise');
-import { DAPI_BASE_URL } from '../config/dapi-config';
+import axios from 'axios';
 
 export async function requestDtxAmountApproval(
   authToken: string,
@@ -8,19 +7,12 @@ export async function requestDtxAmountApproval(
   amount: string
 ) {
   try {
-    const response = await rp({
-      method: 'POST',
-      uri: DAPI_BASE_URL + `/dtxtoken/${tokenAddress}/approve`,
-      body: {
-        _spender: spenderAddress,
-        _value: amount,
-      },
-      headers: {
-        Authorization: authToken,
-      },
-      json: true,
+    const response = await axios.post(`/dtxtoken/${tokenAddress}/approve`, {
+      _spender: spenderAddress,
+      _value: amount,
     });
-    return response.uuid;
+
+    return response.data.uuid;
   } catch (error) {
     console.error(
       `Failed to request approval for ${amount} dtx with error`,
