@@ -115,7 +115,7 @@ export async function enlistSensor(sensor) {
         function done() {
           console.log(`Successfully enlisted sensor ${sensorid}`);
           resolve(sensorid);
-        }
+        },
       ],
       error => {
         if (error) {
@@ -131,12 +131,12 @@ async function ipfs(authToken, metadata) {
     method: 'POST',
     uri: rtrim(baseUrl, '/') + '/ipfs/add/json',
     body: {
-      data: metadata
+      data: metadata,
     },
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -145,9 +145,9 @@ async function listDtxTokenRegistry(authToken) {
     method: 'GET',
     uri: rtrim(baseUrl, '/') + '/dtxtokenregistry/list',
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -156,9 +156,9 @@ async function listStreamRegistry(authToken) {
     method: 'GET',
     uri: rtrim(baseUrl, '/') + '/sensorregistry/list',
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -167,9 +167,9 @@ async function wallet(authToken) {
     method: 'GET',
     uri: rtrim(baseUrl, '/') + '/wallet',
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -185,9 +185,9 @@ async function allowance(
       rtrim(baseUrl, '/') +
       `/dtxtoken/${tokenAddress}/allowance?owner=${ownerAddress}&spender=${spenderAddress}`,
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -197,12 +197,12 @@ async function approve(authToken, tokenAddress, spenderAddress, amount) {
     uri: rtrim(baseUrl, '/') + `/dtxtoken/${tokenAddress}/approve`,
     body: {
       _spender: spenderAddress,
-      _value: amount
+      _value: amount,
     },
     headers: {
-      Authorization: authToken
+      Authorization: authToken,
     },
-    json: true
+    json: true,
   });
 }
 
@@ -213,13 +213,13 @@ async function enlist(authToken, sensor) {
     body: {
       _metadata: sensor.metadata,
       _stakeAmount: sensor.stakeamount,
-      _price: sensor.price
+      _price: sensor.price,
     },
     headers: {
       Authorization: authToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    json: true
+    json: true,
   });
 }
 
@@ -231,8 +231,8 @@ async function waitFor(authToken, url) {
         method: 'GET',
         uri: url,
         headers: {
-          Authorization: authToken
-        }
+          Authorization: authToken,
+        },
       }).catch(error => {
         bail(error);
       });
@@ -253,7 +253,7 @@ async function waitFor(authToken, url) {
       factor: 2,
       minTimeout: 1000,
       maxTimeout: 5000, // ms
-      retries: 120
+      retries: 120,
     }
   );
 }

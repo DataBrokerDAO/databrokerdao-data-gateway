@@ -34,8 +34,3 @@ export const DAPI_PASSWORD: string = process.env.DAPI_PASSWORD;
 
 export const MIDDLEWARE_PORT: number =
   parseInt(process.env.MIDDLEWARE_PORT, 10) || 3000;
-
-// TODO: remove?
-export const NODE_ENV: string = process.env.NODE_ENV;
-
-export const LUFTDATEN_POLL_SCHEDULE: string = '* 7 16 * *';

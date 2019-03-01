@@ -53,10 +53,3 @@ export interface IStreamSensor {
   value: string;
   value_type: string;
 }
-
-// TODO: remove?
-export interface IJob {
-  name: string;
-  environment: string;
-  schedule: string;
-}

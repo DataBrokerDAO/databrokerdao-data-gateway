@@ -6,7 +6,6 @@ import { lufdatenCron } from './crons/stream';
 function init() {
   axios.defaults.baseURL = DATABROKER_CUSTOM_DAPI_BASE_URL;
   console.log('Scheduling LUFTDATEN cron...');
-  // TODO: Remove after debugging
   lufdatenCron();
   new CronJob(
     '*/30 * * * * *',
