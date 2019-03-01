@@ -64,7 +64,7 @@ function transformLuftdatenSensorToDataStreamSensor(
     const newSensor: IStreamSensor = {
       key: generateSensorId(sensor),
       sensorid: sensor.sensor.id,
-      value: sensor.sensordatavalues[0].value,
+      value: sensor.sensordatavalues[0].value.toString(),
       value_type: sensor.sensordatavalues[0].value_type,
     };
     return newSensor;

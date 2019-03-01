@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 export async function requestDtxAmountApproval(
-  authToken: string,
   tokenAddress: string,
   spenderAddress: string,
   amount: string

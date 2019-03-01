@@ -8,6 +8,7 @@ import { ISensorEnlist } from '../types';
 import { waitFor } from './async';
 
 export async function enlistSensor(sensor: ISensorEnlist) {
+  // TODO: re-enable on deployment
   return;
   console.log('Skip Enlist');
 
