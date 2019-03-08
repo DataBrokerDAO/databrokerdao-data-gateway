@@ -9,8 +9,12 @@ function init() {
   lufdatenCron();
   new CronJob(
     '* * 0 * * *',
-    lufdatenCron,
-    lufdatenCron,
+    async () => {
+      await lufdatenCron();
+    },
+    () => {
+      console.log('CRON complete');
+    },
     true,
     'Europe/Brussels'
   ).start();

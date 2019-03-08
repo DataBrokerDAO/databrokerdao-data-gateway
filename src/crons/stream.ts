@@ -13,17 +13,34 @@ export async function lufdatenCron() {
     rawSensors
   );
 
-  streamSensors.map(pushSensorToCustomDapi);
+  postSensorData(streamSensors);
 }
 
-async function pushSensorToCustomDapi(sensor: IStreamSensor) {
+async function postSensorData(streamSensors: IStreamSensor[]) {
   try {
-    await Axios.post(buildCustomDapiUrl(sensor), sensor);
-  } catch (error) {
-    console.error(
-      `Failed pushing sensor ${sensor.sensorid} to custom DAPI`,
-      error
+    let chunk;
+    const CHUNK_SIZE = 10;
+
+    console.log(`Fetched ${streamSensors.length} sensors from LUFTDATEN`);
+    console.log(
+      `sending them in batches of ${CHUNK_SIZE} over to the custom DAPI`
     );
+
+    for (let i = 0; i < streamSensors.length; i += CHUNK_SIZE) {
+      try {
+        chunk = streamSensors.slice(i, i + CHUNK_SIZE);
+        const promises = chunk.map(sensor => {
+          return Axios.post(buildCustomDapiUrl(sensor), sensor);
+        });
+        await Promise.all(promises);
+      } catch (error) {
+        console.error(
+          `Request failed with status code: ${error.response.status}`
+        );
+      }
+    }
+  } catch (error) {
+    throw error;
   }
 }
 
