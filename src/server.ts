@@ -8,7 +8,7 @@ function init() {
   console.log('Scheduling LUFTDATEN cron...');
   lufdatenCron();
   new CronJob(
-    '*/30 * * * * *',
+    '* * 0 * * *',
     lufdatenCron,
     lufdatenCron,
     true,

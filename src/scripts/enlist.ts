@@ -1,11 +1,9 @@
 import { functionListSensorRegistry } from '../dapi/registries';
 import { getLuftdatenSensors } from '../data/luftdaten';
-import {
-  transformLuftdatenSensor,
-  transformLuftdatenSensorsToSensors,
-} from '../data/transform';
+import { transformLuftdatenSensor } from '../data/transform';
 
-import { ISensor, ISensorEnlist } from '../types';
+import { ISensorEnlist } from '../types';
+import { enlistSensor } from '../util/api';
 
 async function enlistLufdatenSensors() {
   // Fetch and transform sensor data from the Lufdaten API
@@ -29,8 +27,7 @@ async function enlistLufdatenSensors() {
   for (let i = 0; i < luftDatenSensors.length; i++) {
     const luftDatenSensor = luftDatenSensors[i];
     if (registeredSensorsDict[luftDatenSensor.metadata.sensorid] !== true) {
-      // TODO: re-enable on deployment
-      // await enlistSensor(luftDatenSensors[i]);
+      await enlistSensor(luftDatenSensors[i]);
     }
   }
 }
