@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export async function requestEnlistSensor(
+export async function enlistSensor(
   metadata: string,
   stakeAmount: string,
   price: string
@@ -13,6 +13,6 @@ export async function requestEnlistSensor(
     });
     return response.data.uuid;
   } catch (error) {
-    console.error('Failed to request sensor enlisting with error', error);
+    throw error;
   }
 }

@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { CronJob } from 'cron';
-import { DATABROKER_CUSTOM_DAPI_BASE_URL } from './config/dapi-config';
+import {
+  DATABROKER_CUSTOM_DAPI_BASE_URL,
+  LUFTDATEN_CRON_TIME,
+} from './config/dapi-config';
 import { lufdatenCron } from './crons/stream';
 
 function init() {
@@ -8,7 +11,7 @@ function init() {
   console.log('Scheduling LUFTDATEN cron...');
   lufdatenCron();
   new CronJob(
-    '* * 0 * * *',
+    LUFTDATEN_CRON_TIME,
     async () => {
       await lufdatenCron();
     },

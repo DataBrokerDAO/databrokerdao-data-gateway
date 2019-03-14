@@ -1,0 +1,23 @@
+version: '3.6'
+
+services:
+  mongo:
+    image: mongo:4.0.3
+    ports:
+      - '27017:27017'
+    command: mongod --replSet replicaset --smallfiles
+    restart: always
+
+  mongo-replicaset-setup:
+    container_name: 'mongo-replicaset-setup'
+    image: mongo:4.0.3
+    depends_on:
+      - 'mongo'
+    links:
+      - mongo:mongo
+    volumes:
+      - ./scripts:/scripts
+    environment:
+      - MONGO1=mongo
+      - RS=replicaset
+    entrypoint: ['/scripts/replicaset.sh']

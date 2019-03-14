@@ -32,6 +32,7 @@ async function postSensorData(streamSensors: IStreamSensor[]) {
         const promises = chunk.map(sensor => {
           return Axios.post(buildCustomDapiUrl(sensor), sensor);
         });
+
         await Promise.all(promises);
       } catch (error) {
         console.error(

@@ -18,30 +18,26 @@ function transformLuftdatenSensorToSensor(sensor: ISensorEnlist) {
 
 export function transformLuftdatenSensor(
   sensor: IRawLuftDatenSensor
-): ISensorEnlist | null {
+): ISensorEnlist {
   let transformed = null;
-  try {
-    transformed = {
-      price: Math.floor(
-        generatePriceInDTX(calculateRandom()) / 100000
-      ).toString(),
-      stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
-      metadata: {
-        name: generateName(sensor),
-        sensorid: generateSensorId(sensor),
-        geo: {
-          lat: parseFloat(sensor.location.latitude),
-          lng: parseFloat(sensor.location.longitude),
-        },
-        type: generateType(sensor),
-        example: JSON.stringify(sensor.sensordatavalues[0]),
-        updateinterval: 86400000, // in ms
-        sensortype: SENSORTYPE_STREAM,
+  transformed = {
+    price: Math.floor(
+      generatePriceInDTX(calculateRandom()) / 100000
+    ).toString(),
+    stakeamount: generatePriceInDTX(STAKEAMOUNT).toString(),
+    metadata: {
+      name: generateName(sensor),
+      sensorid: generateSensorId(sensor),
+      geo: {
+        lat: parseFloat(sensor.location.latitude),
+        lng: parseFloat(sensor.location.longitude),
       },
-    };
-  } catch (error) {
-    throw error;
-  }
+      type: generateType(sensor),
+      example: JSON.stringify(sensor.sensordatavalues[0]),
+      updateinterval: 86400000, // in ms
+      sensortype: SENSORTYPE_STREAM,
+    },
+  };
   return transformed;
 }
 

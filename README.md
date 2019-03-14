@@ -14,13 +14,12 @@ The sensors will have been enlisted through the UI by the sensor owner.
 In the .env file you'll find all config variables required to set this up.
 
 ```
-ATLAS_CONNECTION_STRING=              [enter your connection string]
-ATLAS_DATABASE_NAME_DATAGATEWAY=      [enter your desired mongo database, used databroker-datagateway]
-ATLAS_DATABASE_NAME_DATABROKER_DAPI=  [enter databrokerdao mongo database, used to check if sensor are enlisted]
+MONGO_DB_URL=                         [enter your mongodb url]
+MONGO_DB_NAME=                        [enter your desired mongo database, used databroker-datagateway]
 MIDDLEWARE_PORT=                      [can be anything]
-DATAGATEWAY_PRIVATE_KEY=              [enter PK to ensure the middleware can enlist sensors for us]
+DAPI_USERNAME=                        [Your dapi username from https://dapp.databrokerdao.com/]
+DAPI_PASSWORD=                        [Your dapi password from https://dapp.databrokerdao.com/]
 DATABROKER_DAPI_BASE_URL=             [databroker dapi base url]
 DATABROKER_CUSTOM_DAPI_BASE_URL       [databroker custom dapi base url]
 NODE_ENV=                             [debug|production, note that cronjobs are env. dependant]
-CONCURRENCY=                          [request concurrency parameter ]
 ```

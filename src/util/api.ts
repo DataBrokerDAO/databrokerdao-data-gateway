@@ -1,14 +1,11 @@
 import { ipfs } from '../dapi/ipfs';
 import { listDtxTokenRegistry, listStreamRegistry } from '../dapi/registries';
-import { requestEnlistSensor } from '../dapi/sensor';
-import { requestDtxAmountApproval } from '../dapi/token';
+import { enlistSensor as enlistDapiSensor } from '../dapi/sensor';
+import { approveDTX } from '../dapi/token';
 import { ISensorEnlist } from '../types';
 import { waitFor } from './async';
 
 export async function enlistSensor(sensor: ISensorEnlist) {
-  console.log('Skip Enlist');
-  // TODO: disable this when you want to deploy sensors
-  return;
   const ipfsResponseHash = await ipfs(sensor.metadata);
 
   // Fetch contract addresses
@@ -16,7 +13,7 @@ export async function enlistSensor(sensor: ISensorEnlist) {
   const spenderAddress = await listStreamRegistry();
 
   // Approve dtx amount
-  const approveDtxAmountResponseUuid = await requestDtxAmountApproval(
+  const approveDtxAmountResponseUuid = await approveDTX(
     dtxTokenAddress,
     spenderAddress,
     sensor.stakeamount
@@ -28,7 +25,7 @@ export async function enlistSensor(sensor: ISensorEnlist) {
   );
 
   // Request sensor enlisting
-  const sensorEnlistResponseUuid = await requestEnlistSensor(
+  const sensorEnlistResponseUuid = await enlistDapiSensor(
     ipfsResponseHash,
     sensor.stakeamount,
     sensor.price

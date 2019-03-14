@@ -1,16 +1,28 @@
 import axios from 'axios';
 
 export async function listDtxTokenRegistry() {
-  const response = await axios.get(`/localdtxtokenregistry/list`);
-  return response.data.items[0].contractAddress;
+  try {
+    const response = await axios.get(`/localdtxtokenregistry/list`);
+    return response.data.items[0].contractAddress;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function listStreamRegistry() {
-  const response = await axios.get(`/sensorregistry/list?abi=false`);
-  return response.data.base.contractAddress;
+  try {
+    const response = await axios.get(`/sensorregistry/list?abi=false`);
+    return response.data.base.contractAddress;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function functionListSensorRegistry() {
-  const response = await axios.get(`/sensorregistry/list?abi=false`);
-  return response.data.items;
+  try {
+    const response = await axios.get(`/sensorregistry/list?abi=false`);
+    return response.data.items;
+  } catch (error) {
+    throw error;
+  }
 }
