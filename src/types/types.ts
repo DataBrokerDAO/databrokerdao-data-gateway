@@ -1,3 +1,4 @@
+
 export interface IRawLuftDatenSensor {
   id: number;
   sampling_rate: unknown;

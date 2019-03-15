@@ -3,7 +3,7 @@ import express = require('express');
 import { DATABROKER_CUSTOM_DAPI_BASE_URL } from '../config/dapi-config';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { transformLuftdatenSensorsToDataStreamSensors } from '../data/transform';
-import { IStreamSensor } from '../types';
+import { IStreamSensor } from '../types/types';
 
 const app = express();
 

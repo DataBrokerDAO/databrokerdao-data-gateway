@@ -1,4 +1,4 @@
-import { IRawLuftDatenSensor, ISensorEnlist, IStreamSensor } from '../types';
+import { IRawLuftDatenSensor, ISensorEnlist, IStreamSensor } from '../types/types';
 
 const DELIMITER = '!##!';
 const ORIGIN_LUFTDATEN = 'LUFTDATEN';

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { LUFTDATEN_API_URL } from '../config/dapi-config';
-import { IRawLuftDatenSensor } from '../types';
+import { IRawLuftDatenSensor } from '../types/types';
 
 export async function getLuftdatenSensors(): Promise<IRawLuftDatenSensor[]> {
   let luftDatenSensors = [];

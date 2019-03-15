@@ -2,7 +2,7 @@ import { listSensorRegistry } from '../dapi/registries';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { transformLuftdatenSensor } from '../data/transform';
 
-import { ISensorEnlist } from '../types';
+import { ISensorEnlist } from '../types/types';
 import { enlistSensor } from '../util/api';
 
 async function enlistLufdatenSensors() {
