@@ -19,10 +19,6 @@ export const LUFTDATEN_API_URL: string = rtrim(
   '/'
 );
 
-export const MONGO_DB_URL: string = rtrim(process.env.MONGO_DB_URL, '/');
-
-export const MONGO_DB_NAME: string = process.env.MONGO_DB_NAME;
-
 export const SENSOR_UPDATE_INTERVAL = 24 * 3600;
 
 export const DAPI_USERNAME: string = process.env.DAPI_USERNAME;

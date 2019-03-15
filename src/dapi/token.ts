@@ -6,10 +6,13 @@ export async function approveDTX(
   amount: string
 ) {
   try {
-    const response = await axios.post(`/dtxtoken/${tokenAddress}/approve`, {
-      _spender: spenderAddress,
-      _value: amount,
-    });
+    const response = await axios.post(
+      `/localdtxtoken/${tokenAddress}/approve`,
+      {
+        _spender: spenderAddress,
+        _value: amount,
+      }
+    );
 
     return response.data.uuid;
   } catch (error) {

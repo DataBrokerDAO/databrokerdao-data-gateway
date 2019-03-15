@@ -1,4 +1,4 @@
-import { functionListSensorRegistry } from '../dapi/registries';
+import { listSensorRegistry } from '../dapi/registries';
 import { getLuftdatenSensors } from '../data/luftdaten';
 import { transformLuftdatenSensor } from '../data/transform';
 
@@ -16,7 +16,7 @@ async function enlistLufdatenSensors() {
         !isNaN(sensor.metadata.geo.lat) && !isNaN(sensor.metadata.geo.lng)
     );
 
-  const registeredSensors: ISensorEnlist[] = await functionListSensorRegistry();
+  const registeredSensors: ISensorEnlist[] = await listSensorRegistry();
   const registeredSensorsDict = new Map(
     registeredSensors.map(
       (sensor): [string, boolean] => [sensor.metadata.sensorid, true]

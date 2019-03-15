@@ -1,7 +1,7 @@
 {
   "name": "@settlemint/databrokerdao-data-gateway",
   "version": "0.0.0-development",
-  "description": "Mint v2: the dAPI components",
+  "description": "Data Gateway Middleware",
   "main": "dist/server.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -15,27 +15,22 @@
     "build:internal": "npm run build-ts",
     "test": "jest --forceExit --runInBand --detectOpenHandles --coverage --verbose || exit 0",
     "semantic-release": "semantic-release",
-    "prepublishOnly": "docker build --build-arg NPM_TOKEN=${NPM_TOKEN} -t settlemint/mint -t settlemint/mint-dapi .",
     "uglifyjs": "uglifyjs-folder ./dist -yeo ./dist -x .js",
     "start": "npm run build && node dist/server.js",
     "dev": "ts-node-dev src/server.ts",
-    "loadfixtures": "node dist/fixtures.js",
     "travis-deploy-once": "travis-deploy-once --pro",
     "watch-node": "nodemon dist/server.js",
     "watch-ts": "tsc -w"
   },
-  "repository": "https://github.com/settlemint/mint-dapi.git",
+  "repository": "https://github.com/DataBrokerDAO/databrokerdao-data-gateway.git",
   "LICENCE": "SEE LICENSE IN LICENSE",
   "author": "SettleMint <hello@settlemint.com>",
-  "bugs": {
-    "url": "https://github.com/settlemint/mint-dapi/issues"
-  },
   "files": [
     "dist",
     "public",
     "templates"
   ],
-  "homepage": "https://github.com/settlemint/mint-dapi",
+  "homepage": "https://github.com/DataBrokerDAO/databrokerdao-data-gateway",
   "dependencies": {
     "axios": "^0.18.0",
     "axios-retry": "^3.1.2",
@@ -48,60 +43,12 @@
   "publishConfig": {
     "access": "restricted"
   },
-  "release": {
-    "verifyConditions": [
-      "@semantic-release/npm",
-      "semantic-release-docker"
-    ],
-    "prepare": [
-      "@semantic-release/npm"
-    ],
-    "publish": [
-      "@semantic-release/npm",
-      "@semantic-release/github",
-      {
-        "path": "semantic-release-docker",
-        "name": "settlemint/mint-dapi"
-      }
-    ],
-    "success": [
-      "@semantic-release/github"
-    ]
-  },
   "devDependencies": {
-    "@types/amqplib": "^0.5.11",
-    "@types/async": "^2.4.1",
-    "@types/async-lock": "^1.1.0",
-    "@types/async-retry": "^1.2.1",
-    "@types/bcryptjs": "^2.4.2",
-    "@types/bigi": "^1.4.2",
-    "@types/boom": "^7.2.1",
     "@types/cron": "^1.6.1",
     "@types/dotenv": "^6.1.0",
-    "@types/ecurve": "^1.0.0",
     "@types/express": "^4.16.1",
-    "@types/hapi": "^18.0.0",
-    "@types/hapi-auth-jwt2": "^8.0.2",
-    "@types/inert": "^5.1.2",
-    "@types/jest": "^24.0.9",
     "@types/jsonwebtoken": "^8.3.2",
-    "@types/lodash": "^4.14.122",
-    "@types/lodash.get": "^4.4.6",
-    "@types/lodash.keyby": "^4.6.6",
-    "@types/lodash.set": "^4.3.6",
-    "@types/lru-cache": "^5.1.0",
-    "@types/minimist": "^1.2.0",
-    "@types/mock-aws-s3": "^2.6.1",
-    "@types/mongodb": "^3.1.21",
-    "@types/newrelic": "^4.11.0",
     "@types/node": "^11.10.5",
-    "@types/node-schedule": "^1.2.3",
-    "@types/pdfkit": "^0.7.36",
-    "@types/qr-image": "^3.2.1",
-    "@types/raven": "^2.5.2",
-    "@types/request-promise": "^4.1.42",
-    "@types/sleep": "0.0.7",
-    "@types/vision": "^5.3.6",
     "jest": "^24.3.1",
     "nodemon": "^1.18.10",
     "prettier": "^1.16.4",

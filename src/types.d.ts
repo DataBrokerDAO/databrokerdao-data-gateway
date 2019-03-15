@@ -19,17 +19,6 @@ export interface IRawLuftDatenSensor {
   sensordatavalues: ISensordatavalue[];
 }
 
-export interface ISensordatavalue {
-  id: number;
-  value: number;
-  value_type: string;
-}
-
-export interface ISensor {
-  id: string;
-  enlisted: boolean;
-}
-
 export interface ISensorEnlist {
   price: string;
   stakeamount: string;
