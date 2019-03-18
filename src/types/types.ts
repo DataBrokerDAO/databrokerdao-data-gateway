@@ -1,4 +1,3 @@
-
 export interface IRawLuftDatenSensor {
   id: number;
   sampling_rate: unknown;
@@ -18,6 +17,12 @@ export interface IRawLuftDatenSensor {
     };
   };
   sensordatavalues: ISensordatavalue[];
+}
+
+export interface ISensordatavalue {
+  id: number;
+  value: number;
+  value_type: string;
 }
 
 export interface ISensorEnlist {

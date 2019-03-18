@@ -10,6 +10,7 @@ export async function getLuftdatenSensors(): Promise<IRawLuftDatenSensor[]> {
     luftDatenSensors = sensorData.data;
   } catch (error) {
     console.error('Failed to fetch Sensor data from Luftdaten', error);
+    throw error;
   }
 
   return luftDatenSensors;

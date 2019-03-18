@@ -5,8 +5,8 @@
   "main": "dist/server.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start-debug": "node --trace-warnings --inspect=0.0.0.0:9230 --preserve-symlinks ./dist/server.js",
-    "start-debug-break": "node --trace-warnings --inspect-brk=0.0.0.0:9230 --preserve-symlinks ./dist/server.js",
+    "start-debug": "node-ts --trace-warnings --inspect=0.0.0.0:9230 --preserve-symlinks ./dist/server.js",
+    "start-debug-break": "node-ts --trace-warnings --inspect-brk=0.0.0.0:9230 --preserve-symlinks ./dist/server.js",
     "build-ts": "tsc --declaration",
     "watch": "tsc -w --declaration",
     "tslint": "tslint -c tslint.json -p tsconfig.json",

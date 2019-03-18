@@ -7,7 +7,7 @@ export async function listSensorRegistry(
     const response = await axios(createSensorRegistryUrl(parameters));
     return response.data;
   } catch (error) {
-    throw error;
+    return null;
   }
 }
 

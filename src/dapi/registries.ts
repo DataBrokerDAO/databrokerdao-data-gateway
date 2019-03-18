@@ -7,7 +7,7 @@ export async function listDtxTokenRegistry(
     const response = await axios.get(createDtxTokenRegistry(parameters));
     return response.data.items[0].contractAddress;
   } catch (error) {
-    throw error;
+    return null;
   }
 }
 
@@ -18,7 +18,7 @@ export async function listStreamRegistry(
     const response = await axios.get(createSensorRegistryUrl(parameters));
     return response.data.base.contractAddress;
   } catch (error) {
-    throw error;
+    return null;
   }
 }
 
@@ -29,7 +29,7 @@ export async function listSensorRegistry(
     const response = await axios.get(createSensorRegistryUrl(parameters));
     return response.data.items;
   } catch (error) {
-    throw error;
+    return null;
   }
 }
 

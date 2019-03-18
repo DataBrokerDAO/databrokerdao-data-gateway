@@ -1,4 +1,8 @@
-import { IRawLuftDatenSensor, ISensorEnlist, IStreamSensor } from '../types/types';
+import {
+  IRawLuftDatenSensor,
+  ISensorEnlist,
+  IStreamSensor,
+} from '../types/types';
 
 const DELIMITER = '!##!';
 const ORIGIN_LUFTDATEN = 'LUFTDATEN';
@@ -45,28 +49,20 @@ export function transformLuftdatenSensorsToDataStreamSensors(
   sensors: IRawLuftDatenSensor[]
 ): IStreamSensor[] {
   let transformed: IStreamSensor[] = [];
-  try {
-    transformed = sensors.map(transformLuftdatenSensorToDataStreamSensor);
-  } catch (error) {
-    throw error;
-  }
+  transformed = sensors.map(transformLuftdatenSensorToDataStreamSensor);
   return transformed;
 }
 
 function transformLuftdatenSensorToDataStreamSensor(
   sensor: IRawLuftDatenSensor
 ): IStreamSensor {
-  try {
-    const newSensor: IStreamSensor = {
-      key: generateSensorId(sensor),
-      sensorid: sensor.sensor.id,
-      value: sensor.sensordatavalues[0].value.toString(),
-      value_type: sensor.sensordatavalues[0].value_type,
-    };
-    return newSensor;
-  } catch (error) {
-    throw error;
-  }
+  const newSensor: IStreamSensor = {
+    key: generateSensorId(sensor),
+    sensorid: sensor.sensor.id,
+    value: sensor.sensordatavalues[0].value.toString(),
+    value_type: sensor.sensordatavalues[0].value_type,
+  };
+  return newSensor;
 }
 
 function generateName(sensor: IRawLuftDatenSensor) {
